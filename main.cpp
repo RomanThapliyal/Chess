@@ -45,11 +45,17 @@ int main(){
                 if(!selectedSquare){
                     const Piece& piece=game.getBoard().getPiece({square->row,square->col});
 
-                    if(piece.type!=PieceType::None){
+                    if(piece.type!=PieceType::None && piece.color==game.getTurn()){
                         selectedSquare=square;
                         legalMoves=generator.getMoves(game.getBoard(),*selectedSquare);
                         std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
                     }
+                }
+                else if(game.getBoard().getPiece({square->row,square->col}).color==game.getTurn()){
+                    const Piece& piece=game.getBoard().getPiece({square->row,square->col});
+                    selectedSquare=square;
+                    legalMoves=generator.getMoves(game.getBoard(),*selectedSquare);
+                    std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
                 }
                 else{
                     if(square->row!=selectedSquare->row||square->col!=selectedSquare->col){

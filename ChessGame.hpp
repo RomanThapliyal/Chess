@@ -6,10 +6,12 @@
 class ChessGame{
     private: 
     Board board;
+    Color turn=Color::White;
 
     public:
     ChessGame();
 
-    const Board& getBoard()const;
     void makeMove(Move& move);
+    const Board& getBoard()const;
+    Color getTurn()const;
 };
