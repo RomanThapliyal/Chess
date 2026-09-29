@@ -1,7 +1,7 @@
 #include "Renderer.hpp"
 #include <iostream>
 
-Renderer::Renderer(){
+Renderer::Renderer(){      //loads all piece's images
     
     if(!whitePawn.loadFromFile("Assets/Pieces/WhiteWood/Pawn.png")) std::cout<<"Cant load white pawn.png";
     if(!whiteKnight.loadFromFile("Assets/Pieces/WhiteWood/Knight.png")) std::cout<<"Cant load white knight.png";
@@ -18,10 +18,13 @@ Renderer::Renderer(){
     if(!blackKing.loadFromFile("Assets/Pieces/BlackWood/King.png")) std::cout<<"Cant load black king.png";
 }
 
-void Renderer::drawBoard(sf::RenderWindow& window,const Board& board, std::optional<Square>& selectedSquare){
+void Renderer::drawBoard(sf::RenderWindow& window, const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>&legalMoves){
+    drawTiles(window);
+    drawOverlays(window,selectedSquare,legalMoves);
+    drawPieces(window,board);
+}
 
-    const float pieceScale=0.31f;
-    sf::Vector2f squareCenter={tileSize/2,tileSize/2};
+void Renderer::drawTiles(sf::RenderWindow& window){
 
     sf::RectangleShape tile({tileSize,tileSize});
 
@@ -29,19 +32,48 @@ void Renderer::drawBoard(sf::RenderWindow& window,const Board& board, std::optio
         for(int col=0;col<Board::SIZE;col++){
             tile.setPosition({col*tileSize,row*tileSize});
 
-            if((row+col)%2==0) tile.setFillColor(sf::Color(200,165,130));
-            else  tile.setFillColor(sf::Color::Black);
+            if((row+col)%2==0) tile.setFillColor(sf::Color(200,165,130));   //white square
+            else  tile.setFillColor(sf::Color::Black);                      //black square
 
             window.draw(tile);
+        }
+    }
+}
 
-            if(selectedSquare&&selectedSquare->row==row&&selectedSquare->col==col){
+ void Renderer::drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves){
+    for(int row=0;row<Board::SIZE;row++){
+        for(int col=0;col<Board::SIZE;col++){
+
+            if(selectedSquare&&selectedSquare->row==row&&selectedSquare->col==col){   //adds overlay on selected squares
                 sf::RectangleShape overlay({tileSize,tileSize});
                 overlay.setPosition({col*tileSize,row*tileSize});
                 overlay.setFillColor(sf::Color(255,255,0,150));
                 window.draw(overlay);
             }
+
+            bool isLegalMove=false;
+
+            for(const Move& move:legalMoves){
+                if(move.to.row==row&&move.to.col==col){
+                    isLegalMove=true;
+                    break;
+                }
+            }
+
+            if(isLegalMove){
+                sf::RectangleShape overlay({tileSize,tileSize});
+                overlay.setPosition({col*tileSize,row*tileSize});
+                overlay.setFillColor(sf::Color(255,0,0,100));
+                window.draw(overlay);
+            } 
         }
     }
+ }
+
+ void Renderer::drawPieces(sf::RenderWindow& window,const Board& board){
+
+    const float pieceScale=0.31f;
+
     for(int row=0;row<Board::SIZE;row++){
         for(int col=0;col<Board::SIZE;col++){
             
@@ -49,7 +81,7 @@ void Renderer::drawBoard(sf::RenderWindow& window,const Board& board, std::optio
 
             if(piece.type==PieceType::None) continue;
 
-            squareCenter={col*tileSize+tileSize/2,row*tileSize+tileSize/2};
+            sf::Vector2f squareCenter={col*tileSize+tileSize/2,row*tileSize+tileSize/2};
 
             sf::Texture& texture = getTexture(piece);
             sf::Sprite sprite(texture);
@@ -60,10 +92,10 @@ void Renderer::drawBoard(sf::RenderWindow& window,const Board& board, std::optio
 
             window.draw(sprite);           
         }
-    }    
-}
+    }
+ }
 
- sf::Texture& Renderer::getTexture(const Piece& piece){
+sf::Texture& Renderer::getTexture(const Piece& piece){
     if(piece.color == Color::White)
     {
         switch(piece.type)

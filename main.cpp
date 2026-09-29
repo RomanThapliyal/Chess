@@ -2,6 +2,7 @@
 
 #include "Input.hpp"
 #include "ChessGame.hpp"
+#include "MoveGenerator.hpp"
 #include "Renderer.hpp"
 
 #include <iostream>
@@ -23,9 +24,16 @@ std::string pieceName(PieceType type)
 int main(){
     Input input;
     ChessGame game;
+    MoveGenerator generator;
     Renderer renderer;
 
     std::optional <Square> selectedSquare;
+
+    std::vector<Move>legalMoves;
+
+    for(const Move& move:legalMoves){
+         std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
+    }
 
     sf::RenderWindow window(sf::VideoMode({640,640}),"Chess");
 
@@ -43,21 +51,27 @@ int main(){
 
                     if(piece.type!=PieceType::None){
                         selectedSquare=square;
+                        legalMoves=generator.getMoves(game.getBoard(),*selectedSquare);
                         std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
                     }
                 }
                 else{
                     if(square->row!=selectedSquare->row||square->col!=selectedSquare->col){
-                        Move move{*selectedSquare,*square};
-                        game.makeMove(move);
+                        for(const Move& move:legalMoves){
+                            if(move.to.row==square->row&&move.to.col==square->col){
+                                Move move{*selectedSquare,*square};
+                                game.makeMove(move);
+                            }
+                        }
                     }
                     selectedSquare=std::nullopt;
+                    legalMoves.clear();
                 }
             }
         }
         
         window.clear();
-        renderer.drawBoard(window,game.getBoard(),selectedSquare);
+        renderer.drawBoard(window,game.getBoard(),selectedSquare,legalMoves);
         window.display();
     }
 }

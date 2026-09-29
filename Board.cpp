@@ -33,3 +33,11 @@ Board::Board(){
         squares[6][col]={PieceType::Pawn,Color::White};
     }
 }
+
+ Piece& Board::getPiece(Square square){
+    return squares[square.row][square.col];
+ }
+
+const Piece& Board::getPiece(Square square) const{
+    return squares[square.row][square.col];
+ }

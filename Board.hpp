@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Input.hpp"
+
 enum class PieceType{
     None,
     Pawn,
@@ -26,4 +28,6 @@ class Board{
     static constexpr int SIZE=8;
     Piece squares[SIZE][SIZE];
     Board();
+    Piece& getPiece(Square square);
+    const Piece& getPiece(Square square)const;
 };

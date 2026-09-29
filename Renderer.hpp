@@ -3,6 +3,8 @@
 #include "Board.hpp"
 #include "Input.hpp"
 #include "Constants.hpp"
+#include "Move.hpp"
+#include <vector>
 
 class Renderer{
     private:
@@ -25,6 +27,9 @@ class Renderer{
     const float tileSize=TILE_SIZE;
 
     Renderer();
-    void drawBoard(sf::RenderWindow& window,const Board& board, std::optional<Square>& selectedSquare);
+    void drawBoard(sf::RenderWindow& window,const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves);
+    void drawTiles(sf::RenderWindow& window);
+    void drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves);
+    void drawPieces(sf::RenderWindow& window,const Board& board);
     sf::Texture& getTexture(const Piece& piece);
 };
