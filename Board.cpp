@@ -34,10 +34,11 @@ Board::Board(){
     }
 }
 
- Piece& Board::getPiece(Square square){
-    return squares[square.row][square.col];
- }
-
 const Piece& Board::getPiece(Square square) const{
     return squares[square.row][square.col];
- }
+}
+
+void Board::setPiece(Square square, Piece piece){
+    squares[square.row][square.col]=piece;
+}
+

@@ -7,6 +7,6 @@ const Board& ChessGame::getBoard()const{
 }
 
 void ChessGame::makeMove(Move& move){
-    board.squares[move.to.row][move.to.col]=board.squares[move.from.row][move.from.col];
-    board.squares[move.from.row][move.from.col]={PieceType::None,Color::None};
+    board.setPiece(move.to, board.getPiece(move.from));
+    board.setPiece(move.from,{PieceType::None, Color::None});
 }

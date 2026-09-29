@@ -41,32 +41,17 @@ void Renderer::drawTiles(sf::RenderWindow& window){
 }
 
  void Renderer::drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves){
-    for(int row=0;row<Board::SIZE;row++){
-        for(int col=0;col<Board::SIZE;col++){
-
-            if(selectedSquare&&selectedSquare->row==row&&selectedSquare->col==col){   //adds overlay on selected squares
-                sf::RectangleShape overlay({tileSize,tileSize});
-                overlay.setPosition({col*tileSize,row*tileSize});
-                overlay.setFillColor(sf::Color(255,255,0,150));
-                window.draw(overlay);
-            }
-
-            bool isLegalMove=false;
-
-            for(const Move& move:legalMoves){
-                if(move.to.row==row&&move.to.col==col){
-                    isLegalMove=true;
-                    break;
-                }
-            }
-
-            if(isLegalMove){
-                sf::RectangleShape overlay({tileSize,tileSize});
-                overlay.setPosition({col*tileSize,row*tileSize});
-                overlay.setFillColor(sf::Color(255,0,0,100));
-                window.draw(overlay);
-            } 
-        }
+    if(selectedSquare){   //adds overlay on selected squares
+        sf::RectangleShape overlay({tileSize,tileSize});
+        overlay.setPosition({selectedSquare->col*tileSize,selectedSquare->row*tileSize});
+        overlay.setFillColor(sf::Color(255,255,0,150));
+        window.draw(overlay);
+    }
+    for(const Move& move:legalMoves){      //adds overlay on squares with legal moves
+        sf::RectangleShape overlay({tileSize,tileSize});
+        overlay.setPosition({move.to.col*tileSize,move.to.row*tileSize});
+        overlay.setFillColor(sf::Color(255,0,0,100));
+        window.draw(overlay);
     }
  }
 
@@ -77,7 +62,7 @@ void Renderer::drawTiles(sf::RenderWindow& window){
     for(int row=0;row<Board::SIZE;row++){
         for(int col=0;col<Board::SIZE;col++){
             
-            const Piece& piece=board.squares[row][col];
+            const Piece& piece=board.getPiece({row,col});
 
             if(piece.type==PieceType::None) continue;
 

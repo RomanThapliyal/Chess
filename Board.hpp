@@ -25,9 +25,12 @@ struct Piece{
 
 class Board{
     public:
+    
     static constexpr int SIZE=8;
-    Piece squares[SIZE][SIZE];
     Board();
-    Piece& getPiece(Square square);
     const Piece& getPiece(Square square)const;
+    void setPiece(Square square, Piece piece);
+
+    private:
+    Piece squares[SIZE][SIZE];
 };

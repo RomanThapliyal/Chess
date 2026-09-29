@@ -31,10 +31,6 @@ int main(){
 
     std::vector<Move>legalMoves;
 
-    for(const Move& move:legalMoves){
-         std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
-    }
-
     sf::RenderWindow window(sf::VideoMode({640,640}),"Chess");
 
     while(window.isOpen()){
@@ -47,7 +43,7 @@ int main(){
 
             if(auto square=input.getClickedSquare(*event)){
                 if(!selectedSquare){
-                    const Piece& piece=game.getBoard().squares[square->row][square->col];
+                    const Piece& piece=game.getBoard().getPiece({square->row,square->col});
 
                     if(piece.type!=PieceType::None){
                         selectedSquare=square;
@@ -59,6 +55,7 @@ int main(){
                     if(square->row!=selectedSquare->row||square->col!=selectedSquare->col){
                         for(const Move& move:legalMoves){
                             if(move.to.row==square->row&&move.to.col==square->col){
+                                std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
                                 Move move{*selectedSquare,*square};
                                 game.makeMove(move);
                             }
