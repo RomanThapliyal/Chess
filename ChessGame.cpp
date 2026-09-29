@@ -2,7 +2,7 @@
 
 ChessGame::ChessGame(){}
 
-void ChessGame::makeMove(Move& move){
+void ChessGame::makeMove(const Move& move){
     board.setPiece(move.to, board.getPiece(move.from));
     board.setPiece(move.from,{PieceType::None, Color::None});
     turn=(turn==Color::White)?Color::Black:Color::White;

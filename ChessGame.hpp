@@ -11,7 +11,7 @@ class ChessGame{
     public:
     ChessGame();
 
-    void makeMove(Move& move);
+    void makeMove(const Move& move);
     const Board& getBoard()const;
     Color getTurn()const;
 };

@@ -47,14 +47,14 @@ int main(){
 
                     if(piece.type!=PieceType::None && piece.color==game.getTurn()){
                         selectedSquare=square;
-                        legalMoves=generator.getMoves(game.getBoard(),*selectedSquare);
+                        legalMoves=generator.getLegalMoves(game.getBoard(),*selectedSquare);
                         std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
                     }
                 }
                 else if(game.getBoard().getPiece({square->row,square->col}).color==game.getTurn()){
                     const Piece& piece=game.getBoard().getPiece({square->row,square->col});
                     selectedSquare=square;
-                    legalMoves=generator.getMoves(game.getBoard(),*selectedSquare);
+                    legalMoves=generator.getLegalMoves(game.getBoard(),*selectedSquare);
                     std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
                 }
                 else{
@@ -62,7 +62,6 @@ int main(){
                         for(const Move& move:legalMoves){
                             if(move.to.row==square->row&&move.to.col==square->col){
                                 std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
-                                Move move{*selectedSquare,*square};
                                 game.makeMove(move);
                             }
                         }
