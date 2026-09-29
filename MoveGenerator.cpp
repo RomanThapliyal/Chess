@@ -61,6 +61,26 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
         int dir2[4][2]={{-1,-1},{-1,1},{1,-1},{1,1}};
         addSlidingMoves(board, from, piece, dir2, moves);
     }
+
+    else if(piece.type==PieceType::Knight){
+
+        int KnightDir[8][2]={{-2,-1}, {-2,1}, {-1,-2}, {-1,2}, {1,-2}, {1,2}, {2,-1}, {2,1}};
+
+        for(int i=0;i<8;i++){
+
+            int dr=KnightDir[i][0];
+            int dc=KnightDir[i][1];
+
+            Square nextSquare{from.row+dr, from.col+dc};
+
+            if(isInside(board,nextSquare)){
+                const Piece& p=board.getPiece(nextSquare);
+                if(p.type==PieceType::None||p.color!=piece.color){
+                    moves.push_back({from,nextSquare});
+                }
+            }
+        }
+    }
     return moves;
 }
 
