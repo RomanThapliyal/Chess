@@ -20,7 +20,6 @@ Renderer::Renderer(){
 
 void Renderer::drawBoard(sf::RenderWindow& window,const Board& board){
 
-    const float tileSize = 80.f;
     const float pieceScale=0.31f;
     sf::Vector2f squareCenter={tileSize/2,tileSize/2};
 

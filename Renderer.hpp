@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Board.hpp"
+#include "Constants.hpp"
 
 class Renderer{
     private:
@@ -19,6 +20,9 @@ class Renderer{
     sf::Texture blackKing;
 
     public:
+
+    const float tileSize=TILE_SIZE;
+
     Renderer();
     void drawBoard(sf::RenderWindow& window,const Board& board);
     sf::Texture& getTexture(const Piece& piece);
