@@ -42,6 +42,30 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
         }
     }
 
+    else if(piece.type==PieceType::Rook){
+
+        int directions[4][2]={{0,1},{0,-1},{-1,0},{1,0}};
+
+        for(int i=0;i<4;i++){
+            int dr=directions[i][0];
+            int dc=directions[i][1];
+            Square nextSquare{from.row+dr, from.col+dc};
+            while(isInside(board,nextSquare)){
+                const Piece& p=board.getPiece(nextSquare);
+                if(p.type==PieceType::None){
+                    moves.push_back({from,nextSquare});
+                    nextSquare.row+=dr;
+                    nextSquare.col+=dc;
+                }
+                else if(p.color!=piece.color){
+                    moves.push_back({from,nextSquare});
+                    break;
+                }
+                else break;
+            }
+        }
+    }
+
     return moves;
 }
 
