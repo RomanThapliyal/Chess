@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Board.hpp"
+#include "Input.hpp"
 #include "Constants.hpp"
 
 class Renderer{
@@ -24,6 +25,6 @@ class Renderer{
     const float tileSize=TILE_SIZE;
 
     Renderer();
-    void drawBoard(sf::RenderWindow& window,const Board& board);
+    void drawBoard(sf::RenderWindow& window,const Board& board, std::optional<Square>& selectedSquare);
     sf::Texture& getTexture(const Piece& piece);
 };

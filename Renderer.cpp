@@ -18,7 +18,7 @@ Renderer::Renderer(){
     if(!blackKing.loadFromFile("Assets/Pieces/BlackWood/King.png")) std::cout<<"Cant load black king.png";
 }
 
-void Renderer::drawBoard(sf::RenderWindow& window,const Board& board){
+void Renderer::drawBoard(sf::RenderWindow& window,const Board& board, std::optional<Square>& selectedSquare){
 
     const float pieceScale=0.31f;
     sf::Vector2f squareCenter={tileSize/2,tileSize/2};
@@ -28,9 +28,18 @@ void Renderer::drawBoard(sf::RenderWindow& window,const Board& board){
     for(int row=0;row<Board::SIZE;row++){
         for(int col=0;col<Board::SIZE;col++){
             tile.setPosition({col*tileSize,row*tileSize});
+
             if((row+col)%2==0) tile.setFillColor(sf::Color(200,165,130));
             else  tile.setFillColor(sf::Color::Black);
+
             window.draw(tile);
+
+            if(selectedSquare&&selectedSquare->row==row&&selectedSquare->col==col){
+                sf::RectangleShape overlay({tileSize,tileSize});
+                overlay.setPosition({col*tileSize,row*tileSize});
+                overlay.setFillColor(sf::Color(255,255,0,150));
+                window.draw(overlay);
+            }
         }
     }
     for(int row=0;row<Board::SIZE;row++){
