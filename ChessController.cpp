@@ -39,20 +39,22 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
                 for(const Move& move:legalMoves){
                     if(move.to.row==square->row&&move.to.col==square->col){
                         std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
-                        if(move.flag==MoveFlag::PromotionQueen){
-                            game.makeMove(move);
+                        if(move.flag!=MoveFlag::Normal){
+                            startPromotion(move.from, move.to);
                         }
-                        if(move.flag==MoveFlag::Normal){
+                        else{
                             game.makeMove(move);
+                            clearSelection();
                         }
+                        
                         if(game.getGameState()==GameState::Checkmate){
                             std::cout<<((game.getTurn()==Color::White)?"Black ":"White ")<<"wins\n";
                         }
                         else if(game.getGameState()==GameState::Stalemate){
                             std::cout<<"StaleMate  tie\n";
                         }
-                        
-                        if(move.flag==MoveFlag::PromotionQueen || move.flag==MoveFlag::Normal) break;
+
+                        break;
                     }
                 }
              }
@@ -63,6 +65,19 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
     return true;
 }
 
+
+void ChessController::startPromotion(const Square& from,const Square& to) {
+    promotionFrom = from;
+    promotionTo = to;
+    promotionPending = true;
+}
+
+void ChessController::choosePromotion(MoveFlag flag){
+    Move move{promotionFrom, promotionTo, flag};
+    game.makeMove(move);
+    clearSelection();
+    promotionPending=false;
+}
 
 void ChessController::clearSelection(){
     selectedSquare = std::nullopt;   // clear selection
@@ -94,4 +109,8 @@ std::string ChessController::pieceName(PieceType type)
 
 bool ChessController::isPromotionPending(){
     return promotionPending;
+}
+
+void ChessController::resetPromotionPending(){
+    promotionPending=false;
 }

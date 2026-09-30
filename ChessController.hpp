@@ -16,6 +16,9 @@ private:
     ChessGame& game;
     std::optional <Square> selectedSquare;
     std::vector<Move>legalMoves;
+
+    Square promotionFrom{-1, -1};
+    Square promotionTo{-1, -1};
     bool promotionPending=false;
 
     std::string pieceName(PieceType type);
@@ -25,10 +28,14 @@ public:
 
     bool handleChessInput(const Input& input,const sf::Event& event);
 
+    void startPromotion(const Square& square, const Square& target);
+    void choosePromotion(MoveFlag flag);
+
     void clearSelection();
     
     const std::optional<Square>& getSelectedSquare() const;
     const std::vector<Move>& getLegalMoves() const;
 
     bool isPromotionPending();
+    void resetPromotionPending();
 };

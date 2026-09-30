@@ -15,6 +15,18 @@ void ChessGame::makeMove(const Move& move){
         board.setPiece(move.to, {PieceType::Queen, turn});
         board.setPiece(move.from,{PieceType::None, Color::None});
     }
+    else if(move.flag==MoveFlag::PromotionRook){
+        board.setPiece(move.to, {PieceType::Rook, turn});
+        board.setPiece(move.from,{PieceType::None, Color::None});
+    }
+    else if(move.flag==MoveFlag::PromotionKnight){
+        board.setPiece(move.to, {PieceType::Knight, turn});
+        board.setPiece(move.from,{PieceType::None, Color::None});
+    }
+    else if(move.flag==MoveFlag::PromotionBishop){
+        board.setPiece(move.to, {PieceType::Bishop, turn});
+        board.setPiece(move.from,{PieceType::None, Color::None});
+    }
     else{
         board.setPiece(move.to, board.getPiece(move.from));
         board.setPiece(move.from,{PieceType::None, Color::None});

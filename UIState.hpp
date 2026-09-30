@@ -3,5 +3,6 @@
 enum class UIState{
     Start,
     Chess,
+    PromotionChoice,
     End
 };

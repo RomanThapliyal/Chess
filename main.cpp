@@ -27,6 +27,25 @@ void handleStartInput(const Input& input, const std::optional<sf::Event>& event,
     }
 }
 
+void handlePromotionChoiceInput(const Input& input, const std::optional<sf::Event>& event, UIState& uiState, ChessController& controller){
+    auto key=input.getPressedKey(*event);
+    if(key==sf::Keyboard::Key::Num1){
+        controller.choosePromotion(MoveFlag::PromotionQueen);
+        uiState=UIState::Chess;
+    }
+    else if(key==sf::Keyboard::Key::Num2){
+        controller.choosePromotion(MoveFlag::PromotionRook);
+        uiState=UIState::Chess;
+    }
+    else if(key==sf::Keyboard::Key::Num3){
+        controller.choosePromotion(MoveFlag::PromotionKnight);
+        uiState=UIState::Chess;
+    }
+    else if(key==sf::Keyboard::Key::Num4){
+        controller.choosePromotion(MoveFlag::PromotionBishop);
+        uiState=UIState::Chess;
+    }
+}
 
 void handleEndInput(const Input& input, const std::optional<sf::Event>& event,UIState& uiState, sf::RenderWindow& window){
     auto key=input.getPressedKey(*event);
@@ -66,7 +85,13 @@ int main(){
                 case UIState::Chess: if(!controller.handleChessInput(input, *event)){
                                          uiState=UIState::End;
                                      }
+                                     if(controller.isPromotionPending()){
+                                        uiState=UIState::PromotionChoice;
+                                     }
                                      break;
+
+                case UIState::PromotionChoice: handlePromotionChoiceInput(input, *event, uiState, controller);
+                                    break;
 
                 case UIState::End:  handleEndInput(input, event, uiState, window);
                                     break;
@@ -80,6 +105,10 @@ int main(){
                                  break;
             case UIState::Chess: renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves());
                                  break;
+
+            case UIState::PromotionChoice:  renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves());
+                                          break;                     
+            
             case UIState::End: renderer.drawEndScreen(window);
                                  break;
             default: break;
