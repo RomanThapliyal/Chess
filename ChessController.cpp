@@ -39,13 +39,20 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
                 for(const Move& move:legalMoves){
                     if(move.to.row==square->row&&move.to.col==square->col){
                         std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
-                        game.makeMove(move);
+                        if(move.flag==MoveFlag::PromotionQueen){
+                            game.makeMove(move);
+                        }
+                        if(move.flag==MoveFlag::Normal){
+                            game.makeMove(move);
+                        }
                         if(game.getGameState()==GameState::Checkmate){
                             std::cout<<((game.getTurn()==Color::White)?"Black ":"White ")<<"wins\n";
                         }
                         else if(game.getGameState()==GameState::Stalemate){
                             std::cout<<"StaleMate  tie\n";
                         }
+                        
+                        if(move.flag==MoveFlag::PromotionQueen || move.flag==MoveFlag::Normal) break;
                     }
                 }
              }
@@ -83,4 +90,8 @@ std::string ChessController::pieceName(PieceType type)
         case PieceType::King: return "King";
         default: return "None";
     }
+}
+
+bool ChessController::isPromotionPending(){
+    return promotionPending;
 }

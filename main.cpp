@@ -4,7 +4,7 @@
 #include "UIState.hpp"
 #include "ChessGame.hpp"
 #include "ChessController.hpp"
-#include "MoveGenerator.hpp"
+
 #include "Renderer.hpp"
 
 #include <iostream>

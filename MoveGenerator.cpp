@@ -9,17 +9,27 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
 
     if(piece.type==PieceType::Pawn){
 
-        int direction=(piece.color==Color::White)?-1:1;
+        int direction=(piece.color==Color::White)?-1:1;       //prevents pawns from going back
 
         Square nextSquare{from.row+direction, from.col};
 
-        if(isInside(board,nextSquare)&&board.getPiece(nextSquare).type==PieceType::None){
+        bool isPromotion=(piece.color==Color::White&&nextSquare.row==0) ||         //if nextSqaure is back rank
+                         (piece.color==Color::Black&&nextSquare.row==7);                   
 
-            moves.push_back({from,nextSquare});
+        if(isInside(board,nextSquare)&&board.getPiece(nextSquare).type==PieceType::None){
+            if(isPromotion){
+                moves.push_back({from,nextSquare,MoveFlag::PromotionQueen});
+                moves.push_back({from,nextSquare,MoveFlag::PromotionRook});
+                moves.push_back({from,nextSquare,MoveFlag::PromotionKnight});
+                moves.push_back({from,nextSquare,MoveFlag::PromotionBishop});
+            }
+            else{
+                moves.push_back({from,nextSquare});
+            }
 
             bool isOnStartRank=(piece.color==Color::White&&from.row==6)||(piece.color==Color::Black&&from.row==1);
 
-            if(isOnStartRank){
+            if(isOnStartRank){             //double push 
                 Square doubleStep{nextSquare.row+direction,nextSquare.col};
                 if(isInside(board,doubleStep)&&board.getPiece(doubleStep).type==PieceType::None)
                     moves.push_back({from,doubleStep});
@@ -31,14 +41,28 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
 
         if(isInside(board,captureLeft)){
             const Piece& captured=board.getPiece(captureLeft);
-            if(captured.type!=PieceType::None && captured.color!=piece.color)
-                moves.push_back({from,captureLeft});
+            if(captured.type!=PieceType::None && captured.color!=piece.color){
+                if(isPromotion){
+                    moves.push_back({from,captureLeft,MoveFlag::PromotionQueen});
+                    moves.push_back({from,captureLeft,MoveFlag::PromotionRook});
+                    moves.push_back({from,captureLeft,MoveFlag::PromotionKnight});
+                    moves.push_back({from,captureLeft,MoveFlag::PromotionBishop});
+                }
+                else moves.push_back({from,captureLeft});
+            }
         }
 
         if(isInside(board,captureRight)){
             const Piece& captured = board.getPiece(captureRight);
-            if(captured.type!=PieceType::None && captured.color!=piece.color)
-                moves.push_back({from,captureRight});
+            if(captured.type!=PieceType::None && captured.color!=piece.color){
+                if(isPromotion){
+                    moves.push_back({from,captureRight,MoveFlag::PromotionQueen});
+                    moves.push_back({from,captureRight,MoveFlag::PromotionRook});
+                    moves.push_back({from,captureRight,MoveFlag::PromotionKnight});
+                    moves.push_back({from,captureRight,MoveFlag::PromotionBishop});
+                }
+                else moves.push_back({from,captureRight});
+            }
         }
     }
 
@@ -81,6 +105,7 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
             }
         }
     }
+    
     else if(piece.type==PieceType::King){
 
         int KingDir[8][2]={{-1,-1}, {-1,0}, {-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};

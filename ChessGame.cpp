@@ -11,8 +11,14 @@ void ChessGame::reset(){
 }
 
 void ChessGame::makeMove(const Move& move){
-    board.setPiece(move.to, board.getPiece(move.from));
-    board.setPiece(move.from,{PieceType::None, Color::None});
+    if(move.flag==MoveFlag::PromotionQueen){
+        board.setPiece(move.to, {PieceType::Queen, turn});
+        board.setPiece(move.from,{PieceType::None, Color::None});
+    }
+    else{
+        board.setPiece(move.to, board.getPiece(move.from));
+        board.setPiece(move.from,{PieceType::None, Color::None});
+    }
     turn=(turn==Color::White)?Color::Black:Color::White;
 
     if(generator.isCheckMate(board,turn)) gameState=GameState::Checkmate;

@@ -23,4 +23,6 @@ class MoveGenerator{
 
     void addSlidingMoves(const Board& board, const Square& from, const Piece& piece, const int (&directions)[4][2], std::vector<Move>& moves);
     void addSlidingSquares(const Board& board, const Square& from, const Piece& piece, const int (&directions)[4][2], std::vector<Square>& squares);
+
+    void pawnPromotion(const Board& board,const Square& from, std::vector<Move>& moves, int& direction);
 };

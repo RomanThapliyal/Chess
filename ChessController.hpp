@@ -16,6 +16,7 @@ private:
     ChessGame& game;
     std::optional <Square> selectedSquare;
     std::vector<Move>legalMoves;
+    bool promotionPending=false;
 
     std::string pieceName(PieceType type);
     
@@ -28,4 +29,6 @@ public:
     
     const std::optional<Square>& getSelectedSquare() const;
     const std::vector<Move>& getLegalMoves() const;
+
+    bool isPromotionPending();
 };
