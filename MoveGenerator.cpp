@@ -122,6 +122,23 @@ std::vector<Move> MoveGenerator::getLegalMoves(const Board& board,const Square& 
     return legalMoves;
 }
 
+std::vector<Move> MoveGenerator::getAllLegalMoves(const Board& board, Color color){
+    std::vector<Move> allLegalMoves;
+    for(int row=0;row<board.SIZE;row++){
+        for(int col=0;col<board.SIZE;col++){
+            Square square{row,col};
+            const Piece& piece=board.getPiece(square);
+
+            if(piece.type==PieceType::None||piece.color!=color) continue;
+
+            std::vector<Move> legalMoves=getLegalMoves(board,square);
+
+            allLegalMoves.insert(allLegalMoves.end(),legalMoves.begin(),legalMoves.end());
+        }
+    }
+    return allLegalMoves;
+}
+
 std::vector<Square> MoveGenerator::getAttackSquares(const Board& board,const Square& from){
 
     std::vector<Square> attackSquares;
@@ -198,7 +215,7 @@ std::vector<Square> MoveGenerator::getAttackSquares(const Board& board,const Squ
     return attackSquares;
 }
 
-bool MoveGenerator::isSquareAttacked(const Board& board,const Square& target, Color& attackingColor){
+bool MoveGenerator::isSquareAttacked(const Board& board,const Square& target, Color attackingColor){
     std::vector<Square>attackSquares;
     for(int row=0;row<board.SIZE;row++){
         for(int col=0;col<board.SIZE;col++){
@@ -220,7 +237,7 @@ bool MoveGenerator::isSquareAttacked(const Board& board,const Square& target, Co
     return false;
 }
 
-bool MoveGenerator::isInCheck(const Board& board, Color& color){
+bool MoveGenerator::isInCheck(const Board& board, Color color){
 
     Color attackingColor=(color==Color::White)?Color::Black : Color::White;
     Square kingSquare{-1,-1};
@@ -237,6 +254,14 @@ bool MoveGenerator::isInCheck(const Board& board, Color& color){
         }
     }
     return isSquareAttacked(board,kingSquare,attackingColor);
+}
+
+bool MoveGenerator::isCheckMate(const Board& board, Color color){
+    return isInCheck(board, color) && getAllLegalMoves(board, color).empty();
+}
+
+bool MoveGenerator::isStaleMate(const Board& board, Color color){
+    return !isInCheck(board, color) && getAllLegalMoves(board, color).empty();
 }
 
 bool MoveGenerator::isInside(const Board& board, const Square& square){

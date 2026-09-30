@@ -49,7 +49,10 @@ int main(){
                     if(piece.type!=PieceType::None && piece.color==game.getTurn()){
                         selectedSquare=square;
                         legalMoves=generator.getLegalMoves(game.getBoard(),*selectedSquare);
-                        std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
+                        std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<'\n';
+                        std::cout << "Piece moves: " << legalMoves.size() << '\n';
+                        std::cout << "All Legal moves: "<<generator.getAllLegalMoves(game.getBoard(),piece.color).size()<<'\n';
+                        std::cout <<"Checkmate: "<<generator.isCheckMate(game.getBoard(),piece.color) << '\n';
                     }
                 }
                 else if(game.getBoard().getPiece({square->row,square->col}).color==game.getTurn()){
@@ -57,6 +60,9 @@ int main(){
                     selectedSquare=square;
                     legalMoves=generator.getLegalMoves(game.getBoard(),*selectedSquare);
                     std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
+                    std::cout << "Piece moves: " << legalMoves.size() << '\n';
+                    std::cout << "All Legal moves "<<generator.getAllLegalMoves(game.getBoard(),piece.color).size()<<'\n';
+                    std::cout <<"Checkmate: "<<generator.isCheckMate(game.getBoard(),piece.color) << '\n';
                 }
                 else{
                     if(square->row!=selectedSquare->row||square->col!=selectedSquare->col){
