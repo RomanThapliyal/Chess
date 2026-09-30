@@ -32,6 +32,7 @@ int main(){
     std::vector<Move>legalMoves;
 
     sf::RenderWindow window(sf::VideoMode({640,640}),"Chess");
+    window.setFramerateLimit(60);
 
     while(window.isOpen()){
 
