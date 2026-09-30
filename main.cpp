@@ -21,10 +21,17 @@ std::string pieceName(PieceType type)
     }
 }
 
+std::string pieceColor(Color color){
+    switch(color){
+        case Color::White: return "White";
+        case Color::Black: return "Black";
+        default: return "None";
+    }
+}
+
 int main(){
     Input input;
     ChessGame game;
-    MoveGenerator generator;
     Renderer renderer;
 
     std::optional <Square> selectedSquare;
@@ -42,27 +49,27 @@ int main(){
                 window.close();
             }
 
+            if(game.getGameState()==GameState::Checkmate || game.getGameState()==GameState::Stalemate) continue;
+
             if(auto square=input.getClickedSquare(*event)){
                 if(!selectedSquare){
                     const Piece& piece=game.getBoard().getPiece({square->row,square->col});
 
                     if(piece.type!=PieceType::None && piece.color==game.getTurn()){
                         selectedSquare=square;
-                        legalMoves=generator.getLegalMoves(game.getBoard(),*selectedSquare);
+                        legalMoves=game.getLegalMoves(*selectedSquare);
                         std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<'\n';
                         std::cout << "Piece moves: " << legalMoves.size() << '\n';
-                        std::cout << "All Legal moves: "<<generator.getAllLegalMoves(game.getBoard(),piece.color).size()<<'\n';
-                        std::cout <<"Checkmate: "<<generator.isCheckMate(game.getBoard(),piece.color) << '\n';
+                        std::cout <<"Game state: "<<game.getGameStateName() << '\n';
                     }
                 }
                 else if(game.getBoard().getPiece({square->row,square->col}).color==game.getTurn()){
                     const Piece& piece=game.getBoard().getPiece({square->row,square->col});
                     selectedSquare=square;
-                    legalMoves=generator.getLegalMoves(game.getBoard(),*selectedSquare);
+                    legalMoves=game.getLegalMoves(*selectedSquare);
                     std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
                     std::cout << "Piece moves: " << legalMoves.size() << '\n';
-                    std::cout << "All Legal moves "<<generator.getAllLegalMoves(game.getBoard(),piece.color).size()<<'\n';
-                    std::cout <<"Checkmate: "<<generator.isCheckMate(game.getBoard(),piece.color) << '\n';
+                    std::cout <<"Game state: "<<game.getGameStateName()<< '\n';
                 }
                 else{
                     if(square->row!=selectedSquare->row||square->col!=selectedSquare->col){
@@ -70,6 +77,12 @@ int main(){
                             if(move.to.row==square->row&&move.to.col==square->col){
                                 std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
                                 game.makeMove(move);
+                                if(game.getGameState()==GameState::Checkmate){
+                                    std::cout<<((game.getTurn()==Color::White)?"Black ":"White ")<<"wins\n";
+                                }
+                                else if(game.getGameState()==GameState::Stalemate){
+                                    std::cout<<"StaleMate  tie\n";
+                                }
                             }
                         }
                     }
