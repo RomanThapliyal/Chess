@@ -22,6 +22,7 @@ class ChessGame{
     public:
     ChessGame();
 
+    void reset();
     void makeMove(const Move& move);
     const Board& getBoard()const;
     Color getTurn()const;

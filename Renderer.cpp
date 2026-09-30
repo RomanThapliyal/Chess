@@ -18,10 +18,31 @@ Renderer::Renderer(){      //loads all piece's images
     if(!blackKing.loadFromFile("Assets/Pieces/BlackWood/King.png")) std::cout<<"Cant load black king.png";
 }
 
+
+void Renderer::drawStartScreen(sf::RenderWindow& window){
+
+    //bg
+    sf::RectangleShape bg({640,640});
+    bg.setFillColor(sf::Color::Red);
+    bg.setPosition({0,0});
+    window.draw(bg);
+
+}
+
 void Renderer::drawBoard(sf::RenderWindow& window, const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>&legalMoves){
     drawTiles(window);
     drawOverlays(window,selectedSquare,legalMoves);
     drawPieces(window,board);
+}
+
+void Renderer::drawEndScreen(sf::RenderWindow& window){
+
+    //bg
+    sf::RectangleShape bg({640,640});
+    bg.setFillColor(sf::Color::Blue);
+    bg.setPosition({0,0});
+    window.draw(bg);
+
 }
 
 void Renderer::drawTiles(sf::RenderWindow& window){

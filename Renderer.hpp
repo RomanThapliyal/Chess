@@ -27,7 +27,12 @@ class Renderer{
     const float tileSize=TILE_SIZE;
 
     Renderer();
+
     void drawBoard(sf::RenderWindow& window,const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves);
+    
+    void drawStartScreen(sf::RenderWindow& window);
+    void drawEndScreen(sf::RenderWindow& window);
+
     void drawTiles(sf::RenderWindow& window);
     void drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves);
     void drawPieces(sf::RenderWindow& window,const Board& board);

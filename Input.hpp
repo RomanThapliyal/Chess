@@ -15,5 +15,6 @@ inline bool operator==(const Square& a, const Square& b) {
 class Input{
     
     public:
-    static std::optional<Square> getClickedSquare(const sf::Event& event);
+    std::optional<Square> getClickedSquare(const sf::Event& event)const;
+    std::optional<sf::Keyboard::Key> getPressedKey(const sf::Event& event)const;
 };

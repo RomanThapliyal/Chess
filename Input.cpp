@@ -1,6 +1,6 @@
 #include "Input.hpp"
 
-std::optional<Square> Input::getClickedSquare(const sf::Event& event){
+std::optional<Square> Input::getClickedSquare(const sf::Event& event) const{
     if(const auto* mouse=event.getIf<sf::Event::MouseButtonPressed>()){
         if(mouse->button!=sf::Mouse::Button::Left) return std::nullopt;
 
@@ -12,3 +12,10 @@ std::optional<Square> Input::getClickedSquare(const sf::Event& event){
     }
     return std::nullopt;
 }
+
+ std::optional<sf::Keyboard::Key> Input::getPressedKey(const sf::Event& event) const{
+    if(const auto* key=event.getIf<sf::Event::KeyPressed>())
+        return key->code;
+
+    return std::nullopt;
+ }

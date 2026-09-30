@@ -2,6 +2,14 @@
 
 ChessGame::ChessGame(){}
 
+
+
+void ChessGame::reset(){
+    board=Board();
+    turn=Color::White;
+    gameState=GameState::Playing;
+}
+
 void ChessGame::makeMove(const Move& move){
     board.setPiece(move.to, board.getPiece(move.from));
     board.setPiece(move.from,{PieceType::None, Color::None});
