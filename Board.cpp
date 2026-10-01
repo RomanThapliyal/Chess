@@ -1,4 +1,5 @@
 #include "Board.hpp"
+#include <iostream>
 
 Board::Board(){
     for(int row=0;row<SIZE;row++){
@@ -57,4 +58,38 @@ std::optional<Square> Board::getEnPassantTarget() const{
 
 void Board::setEnPassantTarget(std::optional<Square> square) {
         enPassantTarget = square;
+}
+
+
+bool Board::canCastle(Color color) const{
+    switch (color)
+    {
+    case Color::White: return wkCastle || wqCastle;
+    case Color::Black: return bkCastle || bqCastle;
+
+    default:std::cout<<"This piece is non existent error canCastel()------\n";
+        return false;
+    }
+}
+
+bool Board::canCastleOnSide(Color color, CastlingSide side) const{
+    switch(color){
+
+        case Color::White: return (side==CastlingSide::KingSide)?(wkCastle):(wqCastle);
+        case Color::Black: return (side==CastlingSide::KingSide)?(bkCastle):(bqCastle);
+
+        default: std::cout<<"This piece is non existent error canCastelOnSide()------\n";
+                 return false;
+    }
+}
+void Board::setCastlingRight(Color color, CastlingSide side, bool value){
+    switch(color){
+        case Color::White: (side==CastlingSide::KingSide)?(wkCastle=value):(wqCastle=value);
+                            break;
+        case Color::Black: (side==CastlingSide::KingSide)?(bkCastle=value):(bqCastle=value);
+                            break;
+
+        default: std::cout<<"This piece is non existent error setCastlingRight() ------\n";
+                 break;
+    }
 }

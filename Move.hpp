@@ -11,6 +11,9 @@ enum class MoveFlag{
 
     EnPassantCapture,
     EnPassantTarget,
+
+    CastleKingSide,
+    CastleQueenSide
 };
 
 struct Move{

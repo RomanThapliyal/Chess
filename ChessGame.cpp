@@ -1,13 +1,13 @@
 #include "ChessGame.hpp"
 
+#include <iostream>
+
 ChessGame::ChessGame(const std::string& fen){
     FenLoader loader;
     startingPosition=loader.load(fen);
     board.setPosition(startingPosition);
     turn=startingPosition.turn;
 ;}
-
-
 
 void ChessGame::reset(){
     board.setPosition(startingPosition);
@@ -16,6 +16,19 @@ void ChessGame::reset(){
 }
 
 void ChessGame::makeMove(const Move& move){
+
+    const Piece& capturedPiece=board.getPiece(move.to);
+    if(capturedPiece.type==PieceType::Rook){
+        if(move.to.row==0&&move.to.col==0)
+            board.setCastlingRight(Color::Black,CastlingSide::QueenSide,false);
+        else if(move.to.row==0&&move.to.col==7)
+            board.setCastlingRight(Color::Black,CastlingSide::KingSide,false);
+        else if(move.to.row==7&&move.to.col==0)
+            board.setCastlingRight(Color::White,CastlingSide::QueenSide,false);
+        else if(move.to.row==7&&move.to.col==7)
+            board.setCastlingRight(Color::White,CastlingSide::KingSide,false);
+    }
+
     if(move.flag==MoveFlag::PromotionQueen){
         board.setPiece(move.to, {PieceType::Queen, turn});
         board.setPiece(move.from,{PieceType::None, Color::None});
@@ -45,9 +58,62 @@ void ChessGame::makeMove(const Move& move){
         board.setPiece(move.from,{PieceType::None, Color::None});
         board.setPiece(*board.getEnPassantTarget(),{PieceType::None, Color::None});    //removes the pawn captured by enpassant
     }
+    else if(move.flag==MoveFlag::CastleKingSide || move.flag==MoveFlag::CastleQueenSide){
+
+        std::cout << "Castling move detected\n";
+
+        const Piece& king=board.getPiece(move.from);
+
+        board.setPiece(move.to, king);  //move the king to next Squrae
+
+        if(move.flag==MoveFlag::CastleKingSide){
+            if(king.color==Color::White){
+                //Rook (7,7) -> (7,5)
+                board.setPiece({7,5},{PieceType::Rook,king.color});
+                board.setPiece({7,7},{PieceType::None,Color::None});
+            }
+            else if(king.color==Color::Black){
+                //Rook (0,7) -> (0,5)
+                board.setPiece({0,5},{PieceType::Rook,king.color});
+                board.setPiece({0,7},{PieceType::None,Color::None});
+            }
+        }
+        else {  //queen side castle
+            if(king.color==Color::White){
+                //Rook (7,0) -> (7,3)
+                board.setPiece({7,3},{PieceType::Rook,king.color});
+                board.setPiece({7,0},{PieceType::None,Color::None});
+            }
+            else if(king.color==Color::Black){
+                //Rook (0,0) -> (0,3)
+                board.setPiece({0,3},{PieceType::Rook,king.color});
+                board.setPiece({0,0},{PieceType::None,Color::None});
+            }
+        }
+        //castle done rights lost 
+        board.setCastlingRight(king.color,CastlingSide::KingSide,false);
+        board.setCastlingRight(king.color,CastlingSide::QueenSide,false);
+
+        board.setPiece(move.from,{PieceType::None, Color::None}); //clear king's old square
+    }
     else{
-        board.setPiece(move.to, board.getPiece(move.from));
-        board.setPiece(move.from,{PieceType::None, Color::None});
+        const Piece& movingPiece=board.getPiece(move.from);  // the piece which is moving
+        board.setPiece(move.to, movingPiece);   //moves the moving piece to next square
+
+        if(movingPiece.type==PieceType::King){      //if king moves, it loses castel rights
+            board.setCastlingRight(movingPiece.color,CastlingSide::KingSide,false);
+            board.setCastlingRight(movingPiece.color,CastlingSide::QueenSide,false);
+        }
+        else if(movingPiece.type==PieceType::Rook){   //if rook moves, that side loses castel rights
+            if(move.from.col==0){
+                board.setCastlingRight(movingPiece.color, CastlingSide::QueenSide,false);
+            }
+            else if(move.from.col==7){
+                board.setCastlingRight(movingPiece.color, CastlingSide::KingSide,false);
+            }
+        }
+
+        board.setPiece(move.from,{PieceType::None, Color::None}); //clear the previous sqaure of moved piece
     }
 
     if(move.flag!=MoveFlag::EnPassantTarget){

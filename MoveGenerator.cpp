@@ -151,6 +151,44 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
                 }
             }
         }
+
+        //castel moves
+
+        if(board.canCastle(piece.color)){
+            if(board.canCastleOnSide(piece.color, CastlingSide::KingSide)){
+                if(piece.color==Color::White){
+                    //(7,5) (7,6) should be empty
+                    if(board.getPiece({7,5}).type==PieceType::None && board.getPiece({7,6}).type==PieceType::None){
+                        //add the castel move
+                        moves.push_back({from,{7,6},MoveFlag::CastleKingSide});
+                    }
+                }
+                else if(piece.color==Color::Black){
+                    //(0,5) (0,6) should be empty
+                    if(board.getPiece({0,5}).type==PieceType::None && board.getPiece({0,6}).type==PieceType::None){
+                        //add the castel move
+                        moves.push_back({from,{0,6},MoveFlag::CastleKingSide});
+                    }
+                }
+            }
+            if(board.canCastleOnSide(piece.color, CastlingSide::QueenSide)){
+                if(piece.color==Color::White){
+                    //(7,1) (7,2) (7,3) should be empty
+                    if(board.getPiece({7,1}).type==PieceType::None && board.getPiece({7,2}).type==PieceType::None && board.getPiece({7,3}).type==PieceType::None){
+                        //add the castel move
+                        moves.push_back({from,{7,2},MoveFlag::CastleQueenSide});
+                    }
+                }
+                else if(piece.color==Color::Black){
+                    //(0,1) (0,2) (0,3) should be empty
+                    if(board.getPiece({0,1}).type==PieceType::None && board.getPiece({0,2}).type==PieceType::None && board.getPiece({0,3}).type==PieceType::None){
+                        //add the castel move
+                        moves.push_back({from,{0,2},MoveFlag::CastleQueenSide});
+                    }
+                }
+            }
+
+        }
     }
     return moves;
 }
@@ -162,13 +200,49 @@ std::vector<Move> MoveGenerator::getLegalMoves(const Board& board,const Square& 
     Color color=board.getPiece(from).color;
 
     for(const auto& move:moves){
-        Board testBoard=board;
 
-        testBoard.setPiece(move.to, testBoard.getPiece(move.from));
-        testBoard.setPiece(move.from,{PieceType::None, Color::None});
+        if(move.flag==MoveFlag::CastleKingSide||move.flag==MoveFlag::CastleQueenSide){    // Casteling moves
+            //1.current King safe?
+            //2.destination sqaure of King safe?
+            //3.middle sqaures attack free?
 
-        if(!isInCheck(testBoard,color)){
+            const Piece& king=board.getPiece(move.from);
+            if(isInCheck(board,king.color)) continue;   //1.
+            Color attackingColor= (king.color==Color::White)?(Color::Black):(Color::White);
+            if(isSquareAttacked(board,move.to,attackingColor)) continue;     //2.
+
+            if(move.flag==MoveFlag::CastleKingSide){        //3.
+                if(king.color==Color::White){
+                    //(7,5) should not be attacked  -- (7,6) was already accounted for as its the destination sq of king after castel
+                    if(isSquareAttacked(board,{7,5},attackingColor)) continue;
+                }
+                else if(king.color==Color::Black){
+                    //(0,5) should not be attacked  -- (0,6) was already accounted for as its the destination sq of king after castel
+                    if(isSquareAttacked(board,{0,5},attackingColor)) continue;
+                }
+            }
+            else if(move.flag==MoveFlag::CastleQueenSide){
+                if(king.color==Color::White){
+                    //(7,3) should not be attacked  -- (7,2) was already accounted for as its the destination sq of king after castel
+                    if(isSquareAttacked(board,{7,3},attackingColor)) continue;
+                }
+                else if(king.color==Color::Black){
+                    //(0,3) should not be attacked  -- (0,2) was already accounted for as its the destination sq of king after castel
+                    if(isSquareAttacked(board,{0,3},attackingColor)) continue;
+                }
+            }
             legalMoves.push_back(move);
+        }
+        
+        else{    //normal moves
+            Board testBoard=board;
+
+            testBoard.setPiece(move.to, testBoard.getPiece(move.from));
+            testBoard.setPiece(move.from,{PieceType::None, Color::None});
+
+            if(!isInCheck(testBoard,color)){
+                legalMoves.push_back(move);
+            }
         }
     }
     return legalMoves;
