@@ -30,7 +30,10 @@ class Board{
     Board();
     const Piece& getPiece(Square square)const;
     void setPiece(Square square, Piece piece);
+    std::optional<Square> getEnPassantTarget()const;
+    void setEnPassantTarget(std::optional<Square> square);
 
     private:
     Piece squares[SIZE][SIZE];
+    std::optional<Square> enPassantTarget;
 };

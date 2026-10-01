@@ -7,7 +7,10 @@ enum class MoveFlag{
     PromotionQueen,
     PromotionRook,
     PromotionKnight,
-    PromotionBishop
+    PromotionBishop,
+
+    EnPassantCapture,
+    EnPassantTarget,
 };
 
 struct Move{

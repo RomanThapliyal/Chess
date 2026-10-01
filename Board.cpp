@@ -42,3 +42,10 @@ void Board::setPiece(Square square, Piece piece){
     squares[square.row][square.col]=piece;
 }
 
+std::optional<Square> Board::getEnPassantTarget() const{
+    return enPassantTarget;
+}
+
+void Board::setEnPassantTarget(std::optional<Square> square) {
+        enPassantTarget = square;
+}

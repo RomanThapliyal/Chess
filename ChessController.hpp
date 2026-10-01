@@ -38,4 +38,6 @@ public:
 
     bool isPromotionPending();
     void resetPromotionPending();
+
+    bool isThisMovePromotion(const MoveFlag& moveflag);
 };

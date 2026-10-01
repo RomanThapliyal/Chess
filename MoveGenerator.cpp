@@ -1,4 +1,5 @@
 #include "MoveGenerator.hpp"
+#include <iostream>
 
 std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from){
 
@@ -24,7 +25,7 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
                 moves.push_back({from,nextSquare,MoveFlag::PromotionBishop});
             }
             else{
-                moves.push_back({from,nextSquare});
+                moves.push_back({from,nextSquare,MoveFlag::Normal});   //single push
             }
 
             bool isOnStartRank=(piece.color==Color::White&&from.row==6)||(piece.color==Color::Black&&from.row==1);
@@ -32,36 +33,64 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
             if(isOnStartRank){             //double push 
                 Square doubleStep{nextSquare.row+direction,nextSquare.col};
                 if(isInside(board,doubleStep)&&board.getPiece(doubleStep).type==PieceType::None)
-                    moves.push_back({from,doubleStep});
+                    moves.push_back({from,doubleStep, MoveFlag::EnPassantTarget});   //only a double pushhed pawn can be captured in enpassant
+            }
+        }
+          
+        //diagonal capture
+
+        Square captureLeftDiag{from.row+direction,from.col-1};
+        Square captureRightDiag{from.row+direction,from.col+1};
+
+        if(isInside(board,captureLeftDiag)){
+            const Piece& captured=board.getPiece(captureLeftDiag);
+            if(captured.type!=PieceType::None && captured.color!=piece.color){
+                if(isPromotion){
+                    moves.push_back({from,captureLeftDiag,MoveFlag::PromotionQueen});
+                    moves.push_back({from,captureLeftDiag,MoveFlag::PromotionRook});
+                    moves.push_back({from,captureLeftDiag,MoveFlag::PromotionKnight});
+                    moves.push_back({from,captureLeftDiag,MoveFlag::PromotionBishop});
+                }
+                else moves.push_back({from,captureLeftDiag,MoveFlag::Normal});
             }
         }
 
-        Square captureLeft{from.row+direction,from.col-1};
-        Square captureRight{from.row+direction,from.col+1};
-
-        if(isInside(board,captureLeft)){
-            const Piece& captured=board.getPiece(captureLeft);
+        if(isInside(board,captureRightDiag)){
+            const Piece& captured = board.getPiece(captureRightDiag);
             if(captured.type!=PieceType::None && captured.color!=piece.color){
                 if(isPromotion){
-                    moves.push_back({from,captureLeft,MoveFlag::PromotionQueen});
-                    moves.push_back({from,captureLeft,MoveFlag::PromotionRook});
-                    moves.push_back({from,captureLeft,MoveFlag::PromotionKnight});
-                    moves.push_back({from,captureLeft,MoveFlag::PromotionBishop});
+                    moves.push_back({from,captureRightDiag,MoveFlag::PromotionQueen});
+                    moves.push_back({from,captureRightDiag,MoveFlag::PromotionRook});
+                    moves.push_back({from,captureRightDiag,MoveFlag::PromotionKnight});
+                    moves.push_back({from,captureRightDiag,MoveFlag::PromotionBishop});
                 }
-                else moves.push_back({from,captureLeft});
+                else moves.push_back({from,captureRightDiag,MoveFlag::Normal});
             }
         }
 
-        if(isInside(board,captureRight)){
-            const Piece& captured = board.getPiece(captureRight);
-            if(captured.type!=PieceType::None && captured.color!=piece.color){
-                if(isPromotion){
-                    moves.push_back({from,captureRight,MoveFlag::PromotionQueen});
-                    moves.push_back({from,captureRight,MoveFlag::PromotionRook});
-                    moves.push_back({from,captureRight,MoveFlag::PromotionKnight});
-                    moves.push_back({from,captureRight,MoveFlag::PromotionBishop});
+           //enpassant capture
+        auto epTarget=board.getEnPassantTarget();       //the sqaure where the pawn is which can be captured by enpassant
+        if(epTarget.has_value()){
+            std::cout<<"epTarget has value\n";
+            Square captureLeft{from.row,from.col-1};    //left of the same rank
+            Square captureRight{from.row,from.col+1};   //right of the same rank
+
+            if(isInside(board,captureLeft)){
+                const Piece& captured=board.getPiece(captureLeft);
+                if(captured.type!=PieceType::None && captured.color!=piece.color){
+                    Square afterEnPassantLeft{from.row+direction,from.col-1};        //backside of pawn which can be captured by enpassant
+                    if(epTarget.value()==captureLeft)    
+                        moves.push_back({from,afterEnPassantLeft,MoveFlag::EnPassantCapture});
                 }
-                else moves.push_back({from,captureRight});
+            }
+
+            if(isInside(board,captureRight)){
+                const Piece& captured = board.getPiece(captureRight);
+                if(captured.type!=PieceType::None && captured.color!=piece.color){
+                    Square afterEnPassantRight{from.row+direction,from.col+1};        //backside of pawn which can be captured by enpassant
+                    if(epTarget.value()==captureRight)
+                    moves.push_back({from,afterEnPassantRight,MoveFlag::EnPassantCapture});
+                }
             }
         }
     }
@@ -175,14 +204,14 @@ std::vector<Square> MoveGenerator::getAttackSquares(const Board& board,const Squ
 
         int direction=(piece.color==Color::White)?-1:1;
 
-        Square captureLeft{from.row+direction,from.col-1};
-        Square captureRight{from.row+direction,from.col+1};
+        Square captureLeftDiag{from.row+direction,from.col-1};
+        Square captureRightDiag{from.row+direction,from.col+1};
 
-        if(isInside(board,captureLeft))
-            attackSquares.push_back(captureLeft);
+        if(isInside(board,captureLeftDiag))
+            attackSquares.push_back(captureLeftDiag);
 
-        if(isInside(board,captureRight))
-            attackSquares.push_back(captureRight);
+        if(isInside(board,captureRightDiag))
+            attackSquares.push_back(captureRightDiag);
     }
 
     else if(piece.type==PieceType::Rook){

@@ -39,7 +39,7 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
                 for(const Move& move:legalMoves){
                     if(move.to.row==square->row&&move.to.col==square->col){
                         std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
-                        if(move.flag!=MoveFlag::Normal){
+                        if(isThisMovePromotion(move.flag)){
                             startPromotion(move.from, move.to);
                         }
                         else{
@@ -113,4 +113,15 @@ bool ChessController::isPromotionPending(){
 
 void ChessController::resetPromotionPending(){
     promotionPending=false;
+}
+
+bool ChessController::isThisMovePromotion(const MoveFlag& moveflag){
+    switch(moveflag){
+        case MoveFlag::PromotionQueen: return true;
+        case MoveFlag::PromotionRook: return true;
+        case MoveFlag::PromotionKnight: return true;
+        case MoveFlag::PromotionBishop: return true;
+
+        default: return false;
+    }
 }

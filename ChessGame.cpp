@@ -27,10 +27,28 @@ void ChessGame::makeMove(const Move& move){
         board.setPiece(move.to, {PieceType::Bishop, turn});
         board.setPiece(move.from,{PieceType::None, Color::None});
     }
+    else if(move.flag==MoveFlag::EnPassantTarget){
+
+        board.setEnPassantTarget(move.to);    //saves the square where the double pushed pawn moved
+        
+        board.setPiece(move.to, board.getPiece(move.from));
+        board.setPiece(move.from,{PieceType::None, Color::None});
+    }
+    else if(move.flag==MoveFlag::EnPassantCapture){
+
+        board.setPiece(move.to, board.getPiece(move.from));
+        board.setPiece(move.from,{PieceType::None, Color::None});
+        board.setPiece(*board.getEnPassantTarget(),{PieceType::None, Color::None});    //removes the pawn captured by enpassant
+    }
     else{
         board.setPiece(move.to, board.getPiece(move.from));
         board.setPiece(move.from,{PieceType::None, Color::None});
     }
+
+    if(move.flag!=MoveFlag::EnPassantTarget){
+        board.setEnPassantTarget(std::nullopt);
+    }
+
     turn=(turn==Color::White)?Color::Black:Color::White;
 
     if(generator.isCheckMate(board,turn)) gameState=GameState::Checkmate;
@@ -69,3 +87,4 @@ std::vector<Move> ChessGame::getLegalMoves(const Square& square){
     legalMoves=generator.getLegalMoves(board, square);
     return legalMoves;
 }
+
