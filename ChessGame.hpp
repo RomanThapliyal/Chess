@@ -4,6 +4,8 @@
 #include "Move.hpp"
 #include "MoveGenerator.hpp"
 
+#include "FenLoader.hpp"
+
 #include <string>
 
 enum class GameState{
@@ -16,12 +18,13 @@ enum class GameState{
 class ChessGame{
     private: 
     Board board;
+    Position startingPosition;
     MoveGenerator generator;
     Color turn=Color::White;
     GameState gameState=GameState::Playing;
 
     public:
-    ChessGame();
+    ChessGame(const std::string& fen);
 
     void reset();
     void makeMove(const Move& move);

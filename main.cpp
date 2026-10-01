@@ -7,9 +7,6 @@
 
 #include "Renderer.hpp"
 
-#include <iostream>
-
-
 std::string pieceColor(Color color){
     switch(color){
         case Color::White: return "White";
@@ -22,7 +19,7 @@ std::string pieceColor(Color color){
 void handleStartInput(const Input& input, const std::optional<sf::Event>& event,UIState& uiState, ChessGame& game, ChessController& controller){
     if(input.getPressedKey(*event)==sf::Keyboard::Key::Enter){
         uiState=UIState::Chess;
-        game.reset();                     // fresh board, turn = White, state = Playing
+        game.reset();                     // back to starting position 
         controller.clearSelection();      // clear selection and move list
     }
 }
@@ -59,7 +56,8 @@ void handleEndInput(const Input& input, const std::optional<sf::Event>& event,UI
 
 int main(){
     Input input;
-    ChessGame game;
+    std::string fen="1r1qkbr1/3bp1pp/3n1p2/3Q3P/1PpPpPn1/B5PR/P1P1K1B1/RNN5 b - - 2 25";
+    ChessGame game(fen);
     ChessController controller(game);
     UIState uiState=UIState::Start;
     Renderer renderer;

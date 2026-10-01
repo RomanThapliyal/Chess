@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Position.hpp"
+
 #include "Piece.hpp"
 #include "Square.hpp"
 #include <optional>
@@ -9,6 +11,7 @@ class Board{
     
     static constexpr int SIZE=8;
     Board();
+    void setPosition(const Position& pos);
     const Piece& getPiece(Square square)const;
     void setPiece(Square square, Piece piece);
     std::optional<Square> getEnPassantTarget()const;

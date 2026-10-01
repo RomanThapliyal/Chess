@@ -1,5 +1,4 @@
 #include "MoveGenerator.hpp"
-#include <iostream>
 
 std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from){
 
@@ -71,7 +70,6 @@ std::vector<Move> MoveGenerator::getMoves(const Board& board,const Square& from)
            //enpassant capture
         auto epTarget=board.getEnPassantTarget();       //the sqaure where the pawn is which can be captured by enpassant
         if(epTarget.has_value()){
-            std::cout<<"epTarget has value\n";
             Square captureLeft{from.row,from.col-1};    //left of the same rank
             Square captureRight{from.row,from.col+1};   //right of the same rank
 

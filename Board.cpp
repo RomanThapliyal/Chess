@@ -7,7 +7,7 @@ Board::Board(){
         }
     }
 
-    squares[0][0]={PieceType::Rook,Color::Black};
+    /*squares[0][0]={PieceType::Rook,Color::Black};
     squares[0][1]={PieceType::Knight,Color::Black};
     squares[0][2]={PieceType::Bishop,Color::Black};
     squares[0][3]={PieceType::Queen,Color::Black};
@@ -31,6 +31,15 @@ Board::Board(){
     
     for(int col=0;col<SIZE;col++){
         squares[6][col]={PieceType::Pawn,Color::White};
+    }*/
+}
+
+
+void Board::setPosition(const Position& pos){
+    for(int row=0;row<SIZE;row++){
+        for(int col=0;col<SIZE;col++){
+            squares[row][col]=pos.squares[row][col];
+        }
     }
 }
 
