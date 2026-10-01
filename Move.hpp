@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Input.hpp"
+#include "Square.hpp"
 
 enum class MoveFlag{
     Normal,

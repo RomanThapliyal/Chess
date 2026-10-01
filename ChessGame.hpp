@@ -4,6 +4,7 @@
 #include "Move.hpp"
 #include "MoveGenerator.hpp"
 
+#include <string>
 
 enum class GameState{
     Playing,

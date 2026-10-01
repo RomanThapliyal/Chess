@@ -1,27 +1,8 @@
 #pragma once
 
-#include "Input.hpp"
-
-enum class PieceType{
-    None,
-    Pawn,
-    Knight,
-    Bishop,
-    Rook,
-    King,
-    Queen
-};
-
-enum class Color{
-    None,
-    White,
-    Black
-};
-
-struct Piece{
-    PieceType type=PieceType::None;
-    Color color=Color::None;
-};
+#include "Piece.hpp"
+#include "Square.hpp"
+#include <optional>
 
 class Board{
     public:
