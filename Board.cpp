@@ -42,6 +42,13 @@ void Board::setPosition(const Position& pos){
             squares[row][col]=pos.squares[row][col];
         }
     }
+
+    wkCastle=pos.wkCastle;
+    wqCastle=pos.wqCastle;
+    bkCastle=pos.bkCastle;
+    bqCastle=pos.bqCastle;
+    
+    enPassantTarget=pos.enPassantTarget;
 }
 
 const Piece& Board::getPiece(Square square) const{

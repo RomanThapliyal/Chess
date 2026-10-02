@@ -6,16 +6,10 @@ ChessGame::ChessGame(const std::string& fen){
     FenLoader loader;
     startingPosition=loader.load(fen);
     board.setPosition(startingPosition);
-    turn=startingPosition.turn;
 ;}
 
 void ChessGame::reset(){
     board.setPosition(startingPosition);
-    turn=startingPosition.turn;
-    board.setCastlingRight(Color::White,CastlingSide::KingSide,startingPosition.wkCastle);
-    board.setCastlingRight(Color::White,CastlingSide::QueenSide,startingPosition.wqCastle);
-    board.setCastlingRight(Color::Black,CastlingSide::KingSide,startingPosition.bkCastle);
-    board.setCastlingRight(Color::Black,CastlingSide::QueenSide,startingPosition.bqCastle);
     gameState=GameState::Playing;
 }
 
