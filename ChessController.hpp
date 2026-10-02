@@ -36,6 +36,7 @@ public:
     const std::optional<Square>& getSelectedSquare() const;
     const std::vector<Move>& getLegalMoves() const;
 
+    std::optional<Move> findLegalMove(const Square& to) const;
     bool isPromotionPending();
     void resetPromotionPending();
 

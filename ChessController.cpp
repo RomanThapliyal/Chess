@@ -2,72 +2,71 @@
 
 ChessController::ChessController(ChessGame& game):game(game){}
 
-
 bool ChessController::handleChessInput(const Input& input,const sf::Event& event){
 
-    if(game.getGameState()==GameState::Checkmate || game.getGameState()==GameState::Stalemate){
-
+    if(game.getGameState()==GameState::Checkmate||game.getGameState()==GameState::Stalemate){ //if someone lost or won
         if(input.getPressedKey(event)==sf::Keyboard::Key::E){
-            return false;     //game is over change the UIState to End
+            return false;
         }
         return true;
     }
 
+    auto clickedSquare=input.getClickedSquare(event);
 
-    if(auto square=input.getClickedSquare(event)){
-        if(!selectedSquare){
-            const Piece& piece=game.getBoard().getPiece({square->row,square->col});
-            std::cout<<"\n1\n";
-    
-            if(piece.type!=PieceType::None && piece.color==game.getTurn()){
-                selectedSquare=square;
-                legalMoves=game.getLegalMoves(*selectedSquare);
-                std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<'\n';
-                std::cout << "Piece moves: " << legalMoves.size() << '\n';
-                std::cout <<"Game state: "<<game.getGameStateName() << '\n';
+    if(!clickedSquare) return true;  //no sq clicked nothing to do
+
+    const Piece& clickedPiece=game.getBoard().getPiece(*clickedSquare);
+
+    //no piece selected yet and the clicked piece is of the player in turn
+    if(!selectedSquare.has_value() && clickedPiece.color==game.getTurn()){
+        selectedSquare=clickedSquare;
+        legalMoves=game.getLegalMoves(*clickedSquare);
+        return true;
+    }
+
+    //a piece is already selected 
+
+    if(selectedSquare==clickedSquare){  //if clicked the same sqaure 
+        clearSelection();               //deselect
+        return true;
+    }
+
+
+    if(clickedPiece.color==game.getTurn()){ //clicked another piece of same color -> change selection
+        selectedSquare=clickedSquare;
+        legalMoves=game.getLegalMoves(*clickedSquare);
+        return true;
+    }
+
+    //clicked empty or enemy square -> makeMove()
+
+    if(clickedPiece.color!=game.getTurn()){
+        if(auto move=findLegalMove(*clickedSquare)){
+            std::cout<<"From: "<<move->from.row<<","<<move->from.col<<" -> To: "<<move->to.row<<","<<move->to.col<<"\n";
+
+            if(isThisMovePromotion(move->flag)){
+                startPromotion(move->from,move->to);
+            }
+            else{
+                game.makeMove(*move);
+                clearSelection();
+            }
+
+            if(game.getGameState()==GameState::Checkmate){
+                std::cout<<((game.getTurn()==Color::White)?"Black ":"White ")<<"wins\n";
+            }
+            else if(game.getGameState()==GameState::Stalemate){
+                std::cout<<"StaleMate  tie\n";
             }
         }
-        else if(game.getBoard().getPiece({square->row,square->col}).color==game.getTurn()){
-            const Piece& piece=game.getBoard().getPiece({square->row,square->col});
-             std::cout<<"\n2\n";
-            selectedSquare=square;
-            legalMoves=game.getLegalMoves(*selectedSquare);
-            std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
-            std::cout << "Piece moves: " << legalMoves.size() << '\n';
-            std::cout <<"Game state: "<<game.getGameStateName()<< '\n';
-        }
-        else{
-             std::cout<<"\n3\n";
-            if(square->row!=selectedSquare->row||square->col!=selectedSquare->col){
-                 std::cout<<"\n4\n";
-                for(const Move& move:legalMoves){
-                    if(move.to.row==square->row&&move.to.col==square->col){
-                        std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
-                        if(isThisMovePromotion(move.flag)){
-                            startPromotion(move.from, move.to);
-                        }
-                        else{
-                            game.makeMove(move);
-                            clearSelection();
-                        }
-                        
-                        if(game.getGameState()==GameState::Checkmate){
-                            std::cout<<((game.getTurn()==Color::White)?"Black ":"White ")<<"wins\n";
-                        }
-                        else if(game.getGameState()==GameState::Stalemate){
-                            std::cout<<"StaleMate  tie\n";
-                        }
-
-                        break;
-                    }
-                }
-             }
-            selectedSquare=std::nullopt;
-            legalMoves.clear();                           
-        }
     }
+
+    // Clicked empty/enemy but not a legal move → deselect
+    clearSelection();
     return true;
+
 }
+
 
 
 void ChessController::startPromotion(const Square& from,const Square& to) {
@@ -109,6 +108,15 @@ std::string ChessController::pieceName(PieceType type)
         case PieceType::King: return "King";
         default: return "None";
     }
+}
+
+std::optional<Move> ChessController::findLegalMove(const Square& to) const
+{
+    for(const Move& move:legalMoves){
+        if(move.to==to)
+            return move;
+    }
+    return std::nullopt;
 }
 
 bool ChessController::isPromotionPending(){
