@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Board.hpp"
+#include "BoardLayout.hpp"
 #include "Input.hpp"
 #include "Constants.hpp"
 #include "Move.hpp"
@@ -24,17 +25,15 @@ class Renderer{
 
     public:
 
-    const float tileSize=TILE_SIZE;
-
     Renderer();
 
-    void drawBoard(sf::RenderWindow& window,const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves);
+    void drawBoard(sf::RenderWindow& window,const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves, const BoardLayout& layout);
     
     void drawStartScreen(sf::RenderWindow& window);
     void drawEndScreen(sf::RenderWindow& window);
 
-    void drawTiles(sf::RenderWindow& window);
-    void drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves);
-    void drawPieces(sf::RenderWindow& window,const Board& board);
+    void drawTiles(sf::RenderWindow& window, float boardX, float boardY, float tileSize);
+    void drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves, float boardX, float boardY, float tileSize);
+    void drawPieces(sf::RenderWindow& window,const Board& board, float boardX, float boardY, float tileSize);
     sf::Texture& getTexture(const Piece& piece);
 };

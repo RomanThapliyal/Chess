@@ -1,17 +1,27 @@
 #include "Input.hpp"
 
-std::optional<Square> Input::getClickedSquare(const sf::Event& event) const{
-    if(const auto* mouse=event.getIf<sf::Event::MouseButtonPressed>()){
-        if(mouse->button!=sf::Mouse::Button::Left) return std::nullopt;
+std::optional<Square> Input::getClickedSquare(const sf::Event& event, const BoardLayout& layout) const {
 
-        int col=mouse->position.x/TILE_SIZE;
-        int row=mouse->position.y/TILE_SIZE;
+    if (const auto* mouse = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (mouse->button != sf::Mouse::Button::Left)
+            return std::nullopt;
 
-        if(row>=0 && row<8 && col>=0 && col<8)
-            return Square{row,col};
+        float mouseX = mouse->position.x;
+        float mouseY = mouse->position.y;
+
+        if (mouseX >= layout.boardX && mouseX < layout.boardX + layout.boardSize &&
+            mouseY >= layout.boardY && mouseY < layout.boardY + layout.boardSize) {
+
+            int col = (mouseX - layout.boardX) / layout.tileSize;
+            int row = (mouseY - layout.boardY) / layout.tileSize;
+
+            return Square{row, col};
+        }
     }
+
     return std::nullopt;
 }
+
 
  std::optional<sf::Keyboard::Key> Input::getPressedKey(const sf::Event& event) const{
     if(const auto* key=event.getIf<sf::Event::KeyPressed>())

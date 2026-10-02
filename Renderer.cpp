@@ -29,10 +29,12 @@ void Renderer::drawStartScreen(sf::RenderWindow& window){
 
 }
 
-void Renderer::drawBoard(sf::RenderWindow& window, const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>&legalMoves){
-    drawTiles(window);
-    drawOverlays(window,selectedSquare,legalMoves);
-    drawPieces(window,board);
+void Renderer::drawBoard(sf::RenderWindow& window, const Board& board, const std::optional<Square>& selectedSquare, const std::vector<Move>&legalMoves, const BoardLayout& layout){
+
+    drawTiles(window,layout.boardX,layout.boardY,layout.tileSize);
+    drawOverlays(window,selectedSquare,legalMoves,layout.boardX,layout.boardY,layout.tileSize);
+    drawPieces(window,board,layout.boardX,layout.boardY,layout.tileSize);
+
 }
 
 void Renderer::drawEndScreen(sf::RenderWindow& window){
@@ -45,13 +47,13 @@ void Renderer::drawEndScreen(sf::RenderWindow& window){
 
 }
 
-void Renderer::drawTiles(sf::RenderWindow& window){
+void Renderer::drawTiles(sf::RenderWindow& window, float boardX, float boardY, float tileSize){
 
     sf::RectangleShape tile({tileSize,tileSize});
 
     for(int row=0;row<Board::SIZE;row++){
         for(int col=0;col<Board::SIZE;col++){
-            tile.setPosition({col*tileSize,row*tileSize});
+            tile.setPosition({boardX+col*tileSize,boardY+row*tileSize});
 
             if((row+col)%2==0) tile.setFillColor(sf::Color(200,165,130));   //white square
             else  tile.setFillColor(sf::Color::Black);                      //black square
@@ -61,24 +63,24 @@ void Renderer::drawTiles(sf::RenderWindow& window){
     }
 }
 
- void Renderer::drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves){
+ void Renderer::drawOverlays(sf::RenderWindow& window, const std::optional<Square>& selectedSquare, const std::vector<Move>& legalMoves, float boardX, float boardY, float tileSize){
     if(selectedSquare){   //adds overlay on selected squares
         sf::RectangleShape overlay({tileSize,tileSize});
-        overlay.setPosition({selectedSquare->col*tileSize,selectedSquare->row*tileSize});
+        overlay.setPosition({boardX+selectedSquare->col*tileSize,boardY+selectedSquare->row*tileSize});
         overlay.setFillColor(sf::Color(255,255,0,150));
         window.draw(overlay);
     }
     for(const Move& move:legalMoves){      //adds overlay on squares with legal moves
         sf::RectangleShape overlay({tileSize,tileSize});
-        overlay.setPosition({move.to.col*tileSize,move.to.row*tileSize});
+        overlay.setPosition({boardX+move.to.col*tileSize,boardY+move.to.row*tileSize});
         overlay.setFillColor(sf::Color(255,0,0,100));
         window.draw(overlay);
     }
  }
 
- void Renderer::drawPieces(sf::RenderWindow& window,const Board& board){
+ void Renderer::drawPieces(sf::RenderWindow& window,const Board& board, float boardX, float boardY, float tileSize){
 
-    const float pieceScale=0.31f;
+    const float pieceScale=0.31f*tileSize/TILE_SIZE;
 
     for(int row=0;row<Board::SIZE;row++){
         for(int col=0;col<Board::SIZE;col++){
@@ -87,7 +89,7 @@ void Renderer::drawTiles(sf::RenderWindow& window){
 
             if(piece.type==PieceType::None) continue;
 
-            sf::Vector2f squareCenter={col*tileSize+tileSize/2,row*tileSize+tileSize/2};
+            sf::Vector2f squareCenter={boardX+col*tileSize+tileSize/2,boardY+row*tileSize+tileSize/2};
 
             sf::Texture& texture = getTexture(piece);
             sf::Sprite sprite(texture);

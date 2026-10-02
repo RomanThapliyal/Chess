@@ -2,7 +2,7 @@
 
 ChessController::ChessController(ChessGame& game):game(game){}
 
-bool ChessController::handleChessInput(const Input& input,const sf::Event& event){
+bool ChessController::handleChessInput(const Input& input,const sf::Event& event, const BoardLayout& layout){
 
     if(game.getGameState()==GameState::Checkmate||game.getGameState()==GameState::Stalemate){ //if someone lost or won
         if(input.getPressedKey(event)==sf::Keyboard::Key::E){
@@ -11,7 +11,7 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
         return true;
     }
 
-    auto clickedSquare=input.getClickedSquare(event);
+    auto clickedSquare=input.getClickedSquare(event,layout);
 
     if(!clickedSquare) return true;  //no sq clicked nothing to do
 

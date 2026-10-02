@@ -26,7 +26,7 @@ private:
 public:
     ChessController(ChessGame& game);
 
-    bool handleChessInput(const Input& input,const sf::Event& event);
+    bool handleChessInput(const Input& input,const sf::Event& event, const BoardLayout& layout);
 
     void startPromotion(const Square& square, const Square& target);
     void choosePromotion(MoveFlag flag);

@@ -67,6 +67,8 @@ int main(){
 
     while(window.isOpen()){
 
+        BoardLayout layout = BoardLayout::calculate(window);
+
         window.clear();
 
         while(const std::optional event=window.pollEvent()){   //loop for input handeling
@@ -76,11 +78,20 @@ int main(){
                 continue;
             }
 
+            if(const auto* resized=event->getIf<sf::Event::Resized>()){
+                sf::View view(sf::FloatRect({0.f,0.f},{static_cast<float>(resized->size.x),static_cast<float>(resized->size.y)}));
+                window.setView(view);
+                 std::cout << "RESIZED: "
+              << resized->size.x << " x "
+              << resized->size.y << '\n';
+              layout = BoardLayout::calculate(window);
+            }
+
             switch(uiState){
                 case UIState::Start: handleStartInput(input, event, uiState, game, controller);
                                      break;
 
-                case UIState::Chess: if(!controller.handleChessInput(input, *event)){
+                case UIState::Chess: if(!controller.handleChessInput(input, *event, layout)){
                                          uiState=UIState::End;
                                      }
                                      if(controller.isPromotionPending()){
@@ -101,10 +112,10 @@ int main(){
         switch(uiState){                              //rendering 
             case UIState::Start: renderer.drawStartScreen(window);
                                  break;
-            case UIState::Chess: renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves());
+            case UIState::Chess: renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),layout);
                                  break;
 
-            case UIState::PromotionChoice:  renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves());
+            case UIState::PromotionChoice:  renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),layout);
                                           break;                     
             
             case UIState::End: renderer.drawEndScreen(window);
