@@ -8,8 +8,10 @@ class FenLoader{
     Position load(const std::string& fen)const;
 
     private:
-    bool handlePiece(char ch,Position& pos,int& section,int& k1,int& k2)const;
-    bool handelTurn(char ch,Position& pos,int& section)const;
+    bool decodeBoard(const std::string& boardStr, Position& pos)const;
+    bool decodeTurn(const std::string& turnStr, Position& pos)const;
+    bool decodeCastle(const std::string& castleStr, Position& pos)const;
+    bool decodeenPassant(const std::string& enPassantStr, Position& pos)const;
 
-    Piece getPiece(char pieceName, Color pieceColor)const;
+    Piece getPiece(char pieceName)const;
 };

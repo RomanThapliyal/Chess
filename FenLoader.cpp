@@ -2,84 +2,207 @@
 
 #include<iostream>
 #include <cctype>
+#include <sstream>
 
 Position FenLoader::load(const std::string& fen)const{
-    std::cout<<"Fenloader reaced";
     Position pos{};
-    int k1=0,k2=0;
-    int section=0;
-    for(char ch:fen){
-        switch(section){
-            case 0: if(!handlePiece(ch,pos,section,k1,k2)){std::cout<<"\nFen string is invalid - missing piece\n";}
-                    break;
-            case 1: if(!handelTurn(ch,pos,section)){std::cout<<"\nFen string is invalid - missing turn\n";}
-                    break;
-            //case 2:  //castel
-            //case 3:  //enpassant
-            //case 4:  //half move clock
-            //case 5:  //full move number
-            default: break;
-        }
+
+    std::istringstream iss(fen);  //creates a input stream
+
+    std::string boardPart,turnPart,castlePart,enPassantPart;
+
+    if(!(iss>>boardPart)){
+        std::cout<<"\nFen string is invalid - missing board\n";
+        return Position{};
+    }
+
+    if(!(iss>>turnPart)){
+        std::cout<<"\nFen string is invalid - missing turn\n";
+        return Position{};
+    }
+    
+    if(!(iss>>castlePart)){
+        std::cout<<"\nFen string is invalid - missing castle\n";
+        return Position{};
+    }
+
+    if(!(iss>>enPassantPart)){
+        std::cout<<"\nFen string is invalid - missing enPassant\n";
+        return Position{};
+    }
+
+    if(!decodeBoard(boardPart,pos)){
+        std::cout<<"\nFen string is invalid - board part malformed\n";
+        return Position{};
+    }
+
+    if(!decodeTurn(turnPart,pos)){
+        std::cout<<"\nFen string is invalid - turn part malformed\n";
+        return Position{};
+    }
+
+    if(!decodeCastle(castlePart,pos)){
+        std::cout<<"\nFen string is invalid - castle part malformed\n";
+        return Position{};
+    }
+
+    if(!decodeenPassant(enPassantPart,pos)){
+        std::cout<<"\nFen string is invalid - enPassant part malformed\n";
+        return Position{};
     }
     return pos;
 }
 
+bool FenLoader::decodeBoard(const std::string& boardStr, Position& pos)const{
+    int rank=0;
+    int file=0;
 
-
-
-bool FenLoader::handlePiece(char ch,Position& pos,int& section,int& k1,int& k2)const{
-    if(std::isalpha(ch)){           //ch == a-z A-Z  (piece)
-        if(ch>='A'&&ch<='Z'){          //capital, white piece
-            pos.squares[k1][k2++]=getPiece(ch,Color::White);
+    for(char ch:boardStr){
+        if(std::isalpha(ch)){
+            if(file>=8){
+                return false;  //too many pieces on this file
+            }
+            pos.squares[rank][file]=getPiece(ch);
+            file++;
         }
-        else if(ch>='a'&&ch<='z'){     //small, black piece
-            pos.squares[k1][k2++]=getPiece(ch,Color::Black);
+        else if(std::isdigit(ch)){
+            int n=ch-'0';
+
+            if(n<=0||n>8)
+                return false; //invalid digit
+
+            file+=n;
+            if(file>8)
+                return false; //too many pieces on this file
         }
-        else {
+        else if(ch=='/'){ //end of rank
+            if(file!=8) 
+                return false; //all ranks must have 8 squares
+            rank++;
+            file=0;
+            if(rank>8)
+                return false; //too many ranks
+        }
+        else {       //invalid character
+            return false;  
+        }
+    }
+    return (rank==7) && (file==8);
+}
+
+bool FenLoader::decodeTurn(const std::string& turnStr, Position& pos)const{
+    if(turnStr.size()!=1)  
+        return false;
+    if(turnStr=="w"){
+        pos.turn=Color::White;
+        return true;
+    }
+    else if(turnStr=="b"){
+        pos.turn=Color::Black;
+        return true;
+    }
+    return false;
+}
+
+bool FenLoader::decodeCastle(const std::string& castleStr, Position& pos)const{
+    if(castleStr.empty()||castleStr.size()>4)
+        return false;
+
+    pos.wkCastle = false;   
+    pos.wqCastle = false;
+    pos.bkCastle = false;
+    pos.bqCastle = false;
+
+    if(castleStr=="-"){
+        return true;
+    }
+
+    for(char x:castleStr){
+        switch (x) {
+            case 'K':
+                if(pos.squares[7][4]!=getPiece('K') || pos.squares[7][7]!=getPiece('R')) return false;
+                pos.wkCastle = true;
+                break;
+            case 'Q':
+                if(pos.squares[7][4]!=getPiece('K') || pos.squares[7][0]!=getPiece('R')) return false;
+                pos.wqCastle = true;
+                break;
+            case 'k':
+                if(pos.squares[0][4]!=getPiece('k') || pos.squares[0][7]!=getPiece('r')) return false;
+                pos.bkCastle = true;
+                break;
+            case 'q':
+                if(pos.squares[0][4]!=getPiece('k') || pos.squares[0][0]!=getPiece('r')) return false;
+                pos.bqCastle = true;
+                break;
+            default:
+                return false; // invalid character
+        }
+    }
+    return true;
+}
+
+bool FenLoader::decodeenPassant(const std::string& enPassantStr, Position& pos)const{
+    if(enPassantStr.empty()) 
+        return false;
+
+    if(enPassantStr=="-"){
+        pos.enPassantTarget=std::nullopt;
+        return true;
+    }
+
+    if(enPassantStr.size()!=2)
+        return false;
+    
+    char fileChar=enPassantStr[0];
+    int rankNum=enPassantStr[1]-'0';
+
+    if(fileChar<'a'||fileChar>'h') 
+        return false;
+
+    if(rankNum<1||rankNum>8) 
+        return false;
+
+    int row=rankNum-1;       //converting fen coords to our board coords
+    int col=fileChar - 'a';
+
+    if(pos.turn==Color::White){    //cause fen and our engine's internal representaion is diff
+        row -=1;
+        if(row!=3){   
             return false;
         }
     }
-    else if(std::isdigit(ch)){   //ch== num (n empty squares in that rank)
-        int n=ch-'0';
-        k2+=n;
-    }   
-    else if(ch=='/'){  //ch== '/'  (rank ends)
-        k1++;
-        k2=0;
-    }  
+    else if(pos.turn==Color::Black){
+        row+=1;
+        if(row!=4){   
+            return false;
+        }
+    }
 
-    if(ch==' ') section++;
+    if(row<0 || row>7)   //just for saftey
+        return false;
+
+    pos.enPassantTarget=Square{row,col};
 
     return true;
 }
 
-bool FenLoader::handelTurn(char ch,Position& pos,int& section)const{
-
-    if(ch=='w') pos.turn=Color::White;
-    else if(ch=='b') pos.turn=Color::Black;
-
-    if(pos.turn==Color::None) return false;
-
-    section++;
-    return true;
-}
-
-
-Piece FenLoader::getPiece(char pieceName, Color pieceColor)const {
+Piece FenLoader::getPiece(char pieceName)const{
     switch (pieceName) {
-        case 'k': return {PieceType::King,   pieceColor};
-        case 'q': return {PieceType::Queen,  pieceColor};
-        case 'r': return {PieceType::Rook,   pieceColor};
-        case 'b': return {PieceType::Bishop, pieceColor};
-        case 'n': return {PieceType::Knight, pieceColor};
-        case 'p': return {PieceType::Pawn,   pieceColor};
+        case 'k': return {PieceType::King,   Color::Black};
+        case 'q': return {PieceType::Queen,  Color::Black};
+        case 'r': return {PieceType::Rook,   Color::Black};
+        case 'b': return {PieceType::Bishop, Color::Black};
+        case 'n': return {PieceType::Knight, Color::Black};
+        case 'p': return {PieceType::Pawn,   Color::Black};
 
-        case 'K': return {PieceType::King,   pieceColor};
-        case 'Q': return {PieceType::Queen,  pieceColor};
-        case 'R': return {PieceType::Rook,   pieceColor};
-        case 'B': return {PieceType::Bishop, pieceColor};
-        case 'N': return {PieceType::Knight, pieceColor};
-        case 'P': return {PieceType::Pawn,   pieceColor};
+        case 'K': return {PieceType::King,   Color::White};
+        case 'Q': return {PieceType::Queen,  Color::White};
+        case 'R': return {PieceType::Rook,   Color::White};
+        case 'B': return {PieceType::Bishop, Color::White};
+        case 'N': return {PieceType::Knight, Color::White};
+        case 'P': return {PieceType::Pawn,   Color::White};
+
         default:  return {PieceType::None,   Color::None};
     }
 }

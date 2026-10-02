@@ -20,3 +20,8 @@ struct Piece{
     PieceType type=PieceType::None;
     Color color=Color::None;
 };
+
+inline bool operator==(const Piece& a,const Piece& b)
+{
+    return a.type==b.type && a.color==b.color;
+}

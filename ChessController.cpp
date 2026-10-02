@@ -17,6 +17,7 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
     if(auto square=input.getClickedSquare(event)){
         if(!selectedSquare){
             const Piece& piece=game.getBoard().getPiece({square->row,square->col});
+            std::cout<<"\n1\n";
     
             if(piece.type!=PieceType::None && piece.color==game.getTurn()){
                 selectedSquare=square;
@@ -28,6 +29,7 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
         }
         else if(game.getBoard().getPiece({square->row,square->col}).color==game.getTurn()){
             const Piece& piece=game.getBoard().getPiece({square->row,square->col});
+             std::cout<<"\n2\n";
             selectedSquare=square;
             legalMoves=game.getLegalMoves(*selectedSquare);
             std::cout<<"Selected: "<<pieceName(piece.type)<<" Coord: "<<square->row<<", "<<square->col<<"\n";
@@ -35,7 +37,9 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
             std::cout <<"Game state: "<<game.getGameStateName()<< '\n';
         }
         else{
+             std::cout<<"\n3\n";
             if(square->row!=selectedSquare->row||square->col!=selectedSquare->col){
+                 std::cout<<"\n4\n";
                 for(const Move& move:legalMoves){
                     if(move.to.row==square->row&&move.to.col==square->col){
                         std::cout<<"From: "<<move.from.row<<","<<move.from.col<<" -> To: "<<move.to.row<<","<<move.to.col<<"\n";
