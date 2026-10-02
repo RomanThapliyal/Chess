@@ -6,10 +6,12 @@ ChessGame::ChessGame(const std::string& fen){
     FenLoader loader;
     startingPosition=loader.load(fen);
     board.setPosition(startingPosition);
+    turn=startingPosition.turn;
 ;}
 
 void ChessGame::reset(){
     board.setPosition(startingPosition);
+    turn=startingPosition.turn;
     gameState=GameState::Playing;
 }
 
