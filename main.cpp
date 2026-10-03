@@ -6,6 +6,7 @@
 #include "ChessController.hpp"
 
 #include "Renderer.hpp"
+#include "LiveResize.hpp"
 
 std::string pieceColor(Color color){
     switch(color){
@@ -65,11 +66,38 @@ int main(){
     sf::RenderWindow window(sf::VideoMode({640,640}),"Chess");
     window.setFramerateLimit(60);
 
+    auto redraw=[&](){      //draws one full frame, LiveResize also calls it while the window is being dragged
+
+        auto size=LiveResize::applyView(window);      //window stuff, see LiveResize.hpp
+        if(!size) return;
+
+        BoardLayout drawLayout=BoardLayout::calculate(*size);
+
+        window.clear();
+
+        switch(uiState){                              //rendering 
+            case UIState::Start: renderer.drawStartScreen(window);
+                                 break;
+            case UIState::Chess: renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),drawLayout);
+                                 break;
+
+            case UIState::PromotionChoice:  renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),drawLayout);
+                                          break;                     
+            
+            case UIState::End: renderer.drawEndScreen(window);
+                                 break;
+            default: break;
+
+        }
+
+        window.display();
+    };
+
+    LiveResize liveResize(window,redraw);      //keeps redrawing while the window border is dragged
+
     while(window.isOpen()){
 
         BoardLayout layout = BoardLayout::calculate(window);
-
-        window.clear();
 
         while(const std::optional event=window.pollEvent()){   //loop for input handeling
 
@@ -79,13 +107,16 @@ int main(){
             }
 
             if(const auto* resized=event->getIf<sf::Event::Resized>()){
-                sf::View view(sf::FloatRect({0.f,0.f},{static_cast<float>(resized->size.x),static_cast<float>(resized->size.y)}));
+                sf::FloatRect rectangle({0,0},{static_cast<float>(resized->size.x),static_cast<float>(resized->size.y)});
+                sf::View view(rectangle);
                 window.setView(view);
                  std::cout << "RESIZED: "
               << resized->size.x << " x "
               << resized->size.y << '\n';
-              layout = BoardLayout::calculate(window);
             }
+
+            layout = BoardLayout::calculate(window);
+
 
             switch(uiState){
                 case UIState::Start: handleStartInput(input, event, uiState, game, controller);
@@ -109,22 +140,6 @@ int main(){
             }
         }
 
-        switch(uiState){                              //rendering 
-            case UIState::Start: renderer.drawStartScreen(window);
-                                 break;
-            case UIState::Chess: renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),layout);
-                                 break;
-
-            case UIState::PromotionChoice:  renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),layout);
-                                          break;                     
-            
-            case UIState::End: renderer.drawEndScreen(window);
-                                 break;
-            default: break;
-
-        }
-
-        window.display();
+        redraw();
     }
 }
-

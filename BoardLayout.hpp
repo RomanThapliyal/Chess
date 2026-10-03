@@ -11,17 +11,14 @@ class BoardLayout{
     float boardY;
     float tileSize;
 
-    static BoardLayout calculate(const sf::RenderWindow& window) {
+    static BoardLayout calculate(sf::Vector2u size) {
 
-        sf::Vector2u windowSize = window.getSize();
-        float windowWidth = static_cast<float>(windowSize.x);
-        float windowHeight = static_cast<float>(windowSize.y);
+        float windowWidth = size.x;
+        float windowHeight = size.y;
 
         const float margin = 50.f;
 
         float boardSize = std::min(windowWidth, windowHeight) - 2 * margin;
-
-        boardSize = std::max(boardSize,1.f);
 
         float boardX = (windowWidth - boardSize) / 2.f;
         float boardY = (windowHeight - boardSize) / 2.f;
@@ -34,5 +31,9 @@ class BoardLayout{
             boardY,
             tileSize
         };
+    }
+
+    static BoardLayout calculate(const sf::RenderWindow& window) {
+        return calculate(window.getSize());
     }
 };
