@@ -268,101 +268,94 @@ std::vector<Move> MoveGenerator::getAllLegalMoves(const Board& board, Color colo
     return allLegalMoves;
 }
 
-std::vector<Square> MoveGenerator::getAttackSquares(const Board& board,const Square& from){
-
-    std::vector<Square> attackSquares;
-    const Piece& piece = board.getPiece(from);
-
-    if (piece.type == PieceType::None) return attackSquares;
-
-    if(piece.type==PieceType::Pawn){
-
-        int direction=(piece.color==Color::White)?-1:1;
-
-        Square captureLeftDiag{from.row+direction,from.col-1};
-        Square captureRightDiag{from.row+direction,from.col+1};
-
-        if(isInside(board,captureLeftDiag))
-            attackSquares.push_back(captureLeftDiag);
-
-        if(isInside(board,captureRightDiag))
-            attackSquares.push_back(captureRightDiag);
-    }
-
-    else if(piece.type==PieceType::Rook){
-
-        int rookDirs[4][2]={{0,1},{0,-1},{-1,0},{1,0}};
-        addSlidingSquares(board, from, piece, rookDirs, attackSquares);
-    }
-
-    else if(piece.type==PieceType::Bishop){
-
-        int bishopDirs[4][2]={{-1,-1},{-1,1},{1,-1},{1,1}};
-        addSlidingSquares(board, from, piece, bishopDirs, attackSquares);
-    }
-
-    else if(piece.type==PieceType::Queen){
-        int dir1[4][2]={{0,1},{0,-1},{-1,0},{1,0}};
-        addSlidingSquares(board, from, piece, dir1, attackSquares);
-
-        int dir2[4][2]={{-1,-1},{-1,1},{1,-1},{1,1}};
-        addSlidingSquares(board, from, piece, dir2, attackSquares);
-    }
-
-    else if(piece.type==PieceType::Knight){
-
-        int KnightDir[8][2]={{-2,-1}, {-2,1}, {-1,-2}, {-1,2}, {1,-2}, {1,2}, {2,-1}, {2,1}};
-
-        for(int i=0;i<8;i++){
-
-            int dr=KnightDir[i][0];
-            int dc=KnightDir[i][1];
-
-            Square nextSquare{from.row+dr, from.col+dc};
-
-            if(isInside(board,nextSquare)){
-                attackSquares.push_back(nextSquare);
-            }
-        }
-    }
-    else if(piece.type==PieceType::King){
-
-        int KingDir[8][2]={{-1,-1}, {-1,0}, {-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};
-
-        for(int i=0;i<8;i++){
-
-            int dr=KingDir[i][0];
-            int dc=KingDir[i][1];
-
-            Square nextSquare{from.row+dr, from.col+dc};
-
-            if(isInside(board,nextSquare)){
-                attackSquares.push_back(nextSquare);
-            }
-        }
-    }
-    return attackSquares;
-}
-
 bool MoveGenerator::isSquareAttacked(const Board& board,const Square& target, Color attackingColor){
-    std::vector<Square>attackSquares;
-    for(int row=0;row<board.SIZE;row++){
-        for(int col=0;col<board.SIZE;col++){
 
-            Square square{row,col};
-            const Piece& piece=board.getPiece(square);
+    //our chess board is (0,0) at top left
+    int KingDir[8][2]={{-1,-1}, {-1,0}, {-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};
 
-            if(piece.type==PieceType::None||piece.color!=attackingColor) continue;
+    for(int i=0;i<8;i++){
+        int dr=KingDir[i][0];
+        int dc=KingDir[i][1];
+        Square nextSquare{target.row+dr, target.col+dc};
+        if(!isInside(board,nextSquare)) continue;   //if outside board, leave it
+        const Piece& piece=board.getPiece(nextSquare);
+        if(piece.type!=PieceType::King || piece.color!=attackingColor) continue;  //only if the piece is opponent king 
+        return true;                                                              //return true
+    }
 
-            attackSquares=getAttackSquares(board,square);
+    //knight -> 
+    int KnightDir[8][2]={{-2,-1}, {-2,1}, {-1,-2}, {-1,2}, {1,-2}, {1,2}, {2,-1}, {2,1}};
 
-            for(const auto& sq:attackSquares){
-                if(sq==target){
+    for(int i=0;i<8;i++){
+
+        int dr=KnightDir[i][0];
+        int dc=KnightDir[i][1];
+        Square nextSquare{target.row+dr, target.col+dc};
+        if(!isInside(board,nextSquare)) continue;   //if outside board, leave it
+        const Piece& piece=board.getPiece(nextSquare);
+        if(piece.type!=PieceType::Knight || piece.color!=attackingColor) continue;  //only if the piece is opponent knight 
+        return true;  
+    }
+
+    //pawn->
+    int dir = (attackingColor==Color::White)?(1):(-1);
+    //  {r-1,c-1}   {r-1,c+1}   (black)
+    //          {r,c}
+    //  {r+1,c-1}   {r+1,c+1}   (white)
+    Square sqleft{target.row+dir,target.col-1};
+    Square sqright{target.row+dir,target.col+1};
+
+    if(isInside(board,sqleft) && board.getPiece(sqleft).type==PieceType::Pawn 
+       && board.getPiece(sqleft).color==attackingColor){
+        return true;
+    }
+    if(isInside(board,sqright) && board.getPiece(sqright).type==PieceType::Pawn 
+       && board.getPiece(sqright).color==attackingColor){
+        return true;
+    }
+
+    //rook ->
+    int rookDirs[4][2]={{0,1},{0,-1},{-1,0},{1,0}};
+    for(int i=0;i<4;i++){
+        int dr=rookDirs[i][0];
+        int dc=rookDirs[i][1];
+        Square nextSquare{target.row+dr,target.col+dc};
+        while(isInside(board,nextSquare)){
+            const Piece& piece = board.getPiece(nextSquare);
+            if(piece.type!=PieceType::None){
+                if(piece.type==PieceType::Rook||piece.type==PieceType::Queen){  //queen also has rook moves
+                    if(piece.color==attackingColor)
                     return true;
                 }
+                break; //walk is obstructed
             }
+            nextSquare.row+=dr;
+            nextSquare.col+=dc;
         }
     }
+
+    //bishop ->
+    int bishopDirs[4][2]={{-1,-1},{-1,1},{1,-1},{1,1}};
+    for(int i=0;i<4;i++){
+        int dr=bishopDirs[i][0];
+        int dc=bishopDirs[i][1];
+        Square nextSquare{target.row+dr,target.col+dc};
+        while(isInside(board,nextSquare)){
+            const Piece& piece = board.getPiece(nextSquare);
+            if(piece.type!=PieceType::None){
+                if(piece.type==PieceType::Bishop||piece.type==PieceType::Queen){   //queen also has bishop moves
+                    if(piece.color==attackingColor)
+                    return true;
+                }
+                break; //walk is obstructed
+            }
+            nextSquare.row+=dr;
+            nextSquare.col+=dc;
+        }
+    }
+    //queen ->  covered as queen is a rook bishop hybrid
+
+    //if nothing is attacking then the square is safe
     return false;
 }
 
@@ -419,23 +412,3 @@ void MoveGenerator::addSlidingMoves(const Board& board, const Square& from, cons
         }
 }
 
-void MoveGenerator::addSlidingSquares(const Board& board, const Square& from, const Piece& piece, const int (&directions)[4][2],std::vector<Square>& square){
-    for(int i=0;i<4;i++){
-            int dr=directions[i][0];
-            int dc=directions[i][1];
-            Square nextSquare{from.row+dr, from.col+dc};
-            while(isInside(board,nextSquare)){
-                const Piece& p=board.getPiece(nextSquare);
-                if(p.type==PieceType::None){
-                    square.push_back(nextSquare);
-                    nextSquare.row+=dr;
-                    nextSquare.col+=dc;
-                }
-                else if(p.color!=piece.color){
-                    square.push_back(nextSquare);
-                    break;
-                }
-                else break;
-            }
-        }
-}

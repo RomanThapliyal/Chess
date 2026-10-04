@@ -22,6 +22,7 @@ class ChessGame{
     MoveGenerator generator;
     Color turn=Color::White;
     GameState gameState=GameState::Playing;
+    bool gameStateUpToDate=false;
 
     public:
     ChessGame(const std::string& fen);
@@ -31,8 +32,9 @@ class ChessGame{
     const Board& getBoard()const;
     Color getTurn()const;
 
-    GameState getGameState()const;
-    std::string getGameStateName() const;
+    void updateGameState();
+    GameState getGameState();
+    std::string getGameStateName();
     
     std::vector<Move> getLegalMoves(const Square& square);
 

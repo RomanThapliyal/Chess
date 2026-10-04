@@ -1,7 +1,5 @@
 #include "ChessGame.hpp"
 
-#include <iostream>
-
 ChessGame::ChessGame(const std::string& fen){
     FenLoader loader;
     startingPosition=loader.load(fen);
@@ -12,7 +10,7 @@ ChessGame::ChessGame(const std::string& fen){
 void ChessGame::reset(){
     board.setPosition(startingPosition);
     turn=startingPosition.turn;
-    gameState=GameState::Playing;
+    gameStateUpToDate=false;
 }
 
 void ChessGame::makeMove(const Move& move){
@@ -59,8 +57,6 @@ void ChessGame::makeMove(const Move& move){
         board.setPiece(*board.getEnPassantTarget(),{PieceType::None, Color::None});    //removes the pawn captured by enpassant
     }
     else if(move.flag==MoveFlag::CastleKingSide || move.flag==MoveFlag::CastleQueenSide){
-
-        std::cout << "Castling move detected\n";
 
         const Piece& king=board.getPiece(move.from);
 
@@ -123,10 +119,7 @@ void ChessGame::makeMove(const Move& move){
 
     turn=(turn==Color::White)?Color::Black:Color::White;
 
-    if(generator.isCheckMate(board,turn)) gameState=GameState::Checkmate;
-    else if(generator.isStaleMate(board,turn)) gameState=GameState::Stalemate;
-    else if(generator.isInCheck(board,turn)) gameState=GameState::Check;
-    else gameState=GameState::Playing;
+    gameStateUpToDate=false;
 }
 
 const Board& ChessGame::getBoard()const{
@@ -138,13 +131,24 @@ Color ChessGame::getTurn() const
     return turn;
 }
 
-GameState ChessGame::getGameState()const{
+void ChessGame::updateGameState(){
+    if(generator.isCheckMate(board,turn)) gameState=GameState::Checkmate;
+    else if(generator.isStaleMate(board,turn)) gameState=GameState::Stalemate;
+    else if(generator.isInCheck(board,turn)) gameState=GameState::Check;
+    else gameState=GameState::Playing;
+    gameStateUpToDate=true;
+}
+
+GameState ChessGame::getGameState(){
+    if(!gameStateUpToDate){
+        updateGameState();
+    }
     return gameState;
 }
 
-std::string ChessGame::getGameStateName() const
+std::string ChessGame::getGameStateName()
 {
-    switch(gameState)
+    switch(getGameState())
     {
         case GameState::Playing: return "Playing";
         case GameState::Check: return "Check";
