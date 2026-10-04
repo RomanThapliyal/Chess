@@ -43,10 +43,10 @@ void Board::setPosition(const Position& pos){
         }
     }
 
-    wkCastle=pos.wkCastle;
-    wqCastle=pos.wqCastle;
-    bkCastle=pos.bkCastle;
-    bqCastle=pos.bqCastle;
+    castlingRights.wkCastle=pos.castlingRights.wkCastle;
+    castlingRights.wqCastle=pos.castlingRights.wqCastle;
+    castlingRights.bkCastle=pos.castlingRights.bkCastle;
+    castlingRights.bqCastle=pos.castlingRights.bqCastle;
     
     enPassantTarget=pos.enPassantTarget;
 }
@@ -71,8 +71,8 @@ void Board::setEnPassantTarget(std::optional<Square> square) {
 bool Board::canCastle(Color color) const{
     switch (color)
     {
-    case Color::White: return wkCastle || wqCastle;
-    case Color::Black: return bkCastle || bqCastle;
+    case Color::White: return castlingRights.wkCastle || castlingRights.wqCastle;
+    case Color::Black: return castlingRights.bkCastle || castlingRights.bqCastle;
 
     default:std::cout<<"This piece is non existent error canCastel()------\n";
         return false;
@@ -82,8 +82,8 @@ bool Board::canCastle(Color color) const{
 bool Board::canCastleOnSide(Color color, CastlingSide side) const{
     switch(color){
 
-        case Color::White: return (side==CastlingSide::KingSide)?(wkCastle):(wqCastle);
-        case Color::Black: return (side==CastlingSide::KingSide)?(bkCastle):(bqCastle);
+        case Color::White: return (side==CastlingSide::KingSide)?(castlingRights.wkCastle):(castlingRights.wqCastle);
+        case Color::Black: return (side==CastlingSide::KingSide)?(castlingRights.bkCastle):(castlingRights.bqCastle);
 
         default: std::cout<<"This piece is non existent error canCastelOnSide()------\n";
                  return false;
@@ -91,12 +91,25 @@ bool Board::canCastleOnSide(Color color, CastlingSide side) const{
 }
 void Board::setCastlingRight(Color color, CastlingSide side, bool value){
     switch(color){
-        case Color::White: (side==CastlingSide::KingSide)?(wkCastle=value):(wqCastle=value);
+        case Color::White: (side==CastlingSide::KingSide)?(castlingRights.wkCastle=value):(castlingRights.wqCastle=value);
                             break;
-        case Color::Black: (side==CastlingSide::KingSide)?(bkCastle=value):(bqCastle=value);
+        case Color::Black: (side==CastlingSide::KingSide)?(castlingRights.bkCastle=value):(castlingRights.bqCastle=value);
                             break;
 
         default: std::cout<<"This piece is non existent error setCastlingRight() ------\n";
                  break;
     }
+}
+
+Position Board::getPosition() const{
+    Position position;
+    position.castlingRights=castlingRights;
+    position.enPassantTarget=enPassantTarget;
+    
+    for(int row=0;row<SIZE;row++){
+        for(int col=0;col<SIZE;col++){
+            position.squares[row][col]=squares[row][col];
+        }
+    }
+    return position;
 }

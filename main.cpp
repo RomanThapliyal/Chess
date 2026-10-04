@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 
+#include "ChessAi.hpp"
+
 #include "Input.hpp"
 #include "UIState.hpp"
 #include "ChessGame.hpp"
@@ -58,11 +60,15 @@ void handleEndInput(const Input& input, const std::optional<sf::Event>& event,UI
 
 int main(){
     Input input;
-    std::string fen="4k3/8/8/8/8/R7/8/R3K2R w KQ - 0 1";
+    std::string fen="rnbqkbnr/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     ChessGame game(fen);
     ChessController controller(game);
     UIState uiState=UIState::Start;
     Renderer renderer;
+
+    ChessAi ai;
+
+    ai.evaluate(game.getBoard());
 
     sf::RenderWindow window(sf::VideoMode({1280,720}),"Chess");
     window.setFramerateLimit(60);

@@ -2,6 +2,7 @@
 
 #include "Piece.hpp"
 #include "Square.hpp"
+#include "CastlingRights.hpp"
 #include <optional>
 
 struct Position
@@ -10,8 +11,5 @@ struct Position
     Color turn;
     std::optional<Square> enPassantTarget;
 
-    bool wkCastle=true;  // White kingside
-    bool wqCastle=true;  // White queenside
-    bool bkCastle=true;  // Black kingside
-    bool bqCastle=true;  // Black queenside
+    CastlingRights castlingRights;
 };

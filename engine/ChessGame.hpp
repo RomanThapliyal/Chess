@@ -15,6 +15,12 @@ enum class GameState{
     Stalemate
 };
 
+struct UndoState{
+    Position previousPosition;
+    Color previousTurn;
+    GameState previousGameState;
+};
+
 class ChessGame{
     private: 
     Board board;
@@ -24,11 +30,14 @@ class ChessGame{
     GameState gameState=GameState::Playing;
     bool gameStateUpToDate=false;
 
+    std::vector<UndoState> gameHistory;
+
     public:
     ChessGame(const std::string& fen);
 
     void reset();
     void makeMove(const Move& move);
+    void undoMove();
     const Board& getBoard()const;
     Color getTurn()const;
 

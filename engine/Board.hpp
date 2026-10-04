@@ -4,6 +4,7 @@
 
 #include "Piece.hpp"
 #include "Square.hpp"
+#include "CastlingRights.hpp"
 #include <optional>
 
 enum class CastlingSide{
@@ -26,12 +27,12 @@ class Board{
     bool canCastleOnSide(Color color, CastlingSide side) const;
     void setCastlingRight(Color color, CastlingSide side, bool value);
 
+    Position getPosition() const;
+
     private:
     Piece squares[SIZE][SIZE];
     std::optional<Square> enPassantTarget;
 
-    bool wkCastle=true;  // White kingside
-    bool wqCastle=true;  // White queenside
-    bool bkCastle=true;  // Black kingside
-    bool bqCastle=true;  // Black queenside
+    CastlingRights castlingRights;
+    
 };

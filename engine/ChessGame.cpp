@@ -14,6 +14,7 @@ void ChessGame::reset(){
 }
 
 void ChessGame::makeMove(const Move& move){
+    gameHistory.push_back({board.getPosition(),turn,gameState});
 
     const Piece& capturedPiece=board.getPiece(move.to);
     if(capturedPiece.type==PieceType::Rook){
@@ -120,6 +121,19 @@ void ChessGame::makeMove(const Move& move){
     turn=(turn==Color::White)?Color::Black:Color::White;
 
     gameStateUpToDate=false;
+}
+
+void ChessGame::undoMove(){
+    if(gameHistory.empty()) return;
+
+    const UndoState& state = gameHistory.back();
+    board.setPosition(state.previousPosition);
+    turn=state.previousTurn;
+    gameState=state.previousGameState;
+
+    gameHistory.pop_back();
+
+    gameStateUpToDate=true;
 }
 
 const Board& ChessGame::getBoard()const{

@@ -11,6 +11,9 @@ bool ChessController::handleChessInput(const Input& input,const sf::Event& event
         return true;
     }
 
+    if(input.getPressedKey(event)==sf::Keyboard::Key::U){
+        game.undoMove();
+    }
     auto clickedSquare=input.getClickedSquare(event,layout);
 
     if(!clickedSquare) return true;  //no sq clicked nothing to do

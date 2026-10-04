@@ -108,10 +108,10 @@ bool FenLoader::decodeCastle(const std::string& castleStr, Position& pos)const{
     if(castleStr.empty()||castleStr.size()>4)
         return false;
 
-    pos.wkCastle = false;   
-    pos.wqCastle = false;
-    pos.bkCastle = false;
-    pos.bqCastle = false;
+    pos.castlingRights.wkCastle = false;   
+    pos.castlingRights.wqCastle = false;
+    pos.castlingRights.bkCastle = false;
+    pos.castlingRights.bqCastle = false;
 
     if(castleStr=="-"){
         return true;
@@ -121,19 +121,19 @@ bool FenLoader::decodeCastle(const std::string& castleStr, Position& pos)const{
         switch (x) {
             case 'K':
                 if(pos.squares[7][4]!=getPiece('K') || pos.squares[7][7]!=getPiece('R')) return false;
-                pos.wkCastle = true;
+                pos.castlingRights.wkCastle = true;
                 break;
             case 'Q':
                 if(pos.squares[7][4]!=getPiece('K') || pos.squares[7][0]!=getPiece('R')) return false;
-                pos.wqCastle = true;
+                pos.castlingRights.wqCastle = true;
                 break;
             case 'k':
                 if(pos.squares[0][4]!=getPiece('k') || pos.squares[0][7]!=getPiece('r')) return false;
-                pos.bkCastle = true;
+                pos.castlingRights.bkCastle = true;
                 break;
             case 'q':
                 if(pos.squares[0][4]!=getPiece('k') || pos.squares[0][0]!=getPiece('r')) return false;
-                pos.bqCastle = true;
+                pos.castlingRights.bqCastle = true;
                 break;
             default:
                 return false; // invalid character
