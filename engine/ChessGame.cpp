@@ -104,14 +104,15 @@ void ChessGame::makeMove(const Move& move){
             board.setCastlingRight(movingPiece.color,CastlingSide::KingSide,false);
             board.setCastlingRight(movingPiece.color,CastlingSide::QueenSide,false);
         }
-        else if(movingPiece.type==PieceType::Rook){   //if rook moves, that side loses castel rights
-            if(move.from.col==0){
-                board.setCastlingRight(movingPiece.color, CastlingSide::QueenSide,false);
-            }
-            else if(move.from.col==7){
-                board.setCastlingRight(movingPiece.color, CastlingSide::KingSide,false);
-            }
+        else if(movingPiece.type==PieceType::Rook){
+        int homeRow=(movingPiece.color==Color::White)?7:0;
+        if(move.from.row==homeRow&&move.from.col==0){
+            board.setCastlingRight(movingPiece.color, CastlingSide::QueenSide,false);
         }
+        else if(move.from.row==homeRow&&move.from.col==7){
+            board.setCastlingRight(movingPiece.color, CastlingSide::KingSide,false);
+        }
+    }
 
         board.setPiece(move.from,{PieceType::None, Color::None}); //clear the previous sqaure of moved piece
     }

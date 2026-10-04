@@ -240,6 +240,9 @@ std::vector<Move> MoveGenerator::getLegalMoves(const Board& board,const Square& 
             testBoard.setPiece(move.to, testBoard.getPiece(move.from));
             testBoard.setPiece(move.from,{PieceType::None, Color::None});
 
+            if(move.flag==MoveFlag::EnPassantCapture)
+                testBoard.setPiece({move.from.row,move.to.col},{PieceType::None, Color::None});
+
             if(!isInCheck(testBoard,color)){
                 legalMoves.push_back(move);
             }

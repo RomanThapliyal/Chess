@@ -80,7 +80,7 @@ bool FenLoader::decodeBoard(const std::string& boardStr, Position& pos)const{
                 return false; //all ranks must have 8 squares
             rank++;
             file=0;
-            if(rank>8)
+            if(rank>7)
                 return false; //too many ranks
         }
         else {       //invalid character
@@ -163,21 +163,20 @@ bool FenLoader::decodeenPassant(const std::string& enPassantStr, Position& pos)c
     if(rankNum<1||rankNum>8) 
         return false;
 
-    int row=rankNum-1;       //converting fen coords to our board coords
+    int row;     //converting fen coords to our board coords
     int col=fileChar - 'a';
 
     if(pos.turn==Color::White){    //cause fen and our engine's internal representaion is diff
-        row -=1;
-        if(row!=3){   
+        if(rankNum!=6)
             return false;
-        }
+        row=3;
     }
-    else if(pos.turn==Color::Black){
-        row+=1;
-        if(row!=4){   
-            return false;
-        }
+    else {
+        if(rankNum!=3) return false;
+        row=4;
+
     }
+
 
     if(row<0 || row>7)   //just for saftey
         return false;

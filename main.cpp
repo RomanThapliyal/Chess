@@ -58,7 +58,7 @@ void handleEndInput(const Input& input, const std::optional<sf::Event>& event,UI
 
 int main(){
     Input input;
-    std::string fen="b2r3r/k4p1p/p2q1np1/NppP4/3R1Q2/P4PPB/1PP4P/1K2R3 b - - 0 24";
+    std::string fen="4k3/8/8/8/8/R7/8/R3K2R w KQ - 0 1";
     ChessGame game(fen);
     ChessController controller(game);
     UIState uiState=UIState::Start;
