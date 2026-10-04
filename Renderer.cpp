@@ -16,16 +16,36 @@ Renderer::Renderer(){      //loads all piece's images
     if(!blackRook.loadFromFile("Assets/Pieces/BlackWood/Rook.png")) std::cout<<"Cant load black rook.png";
     if(!blackQueen.loadFromFile("Assets/Pieces/BlackWood/Queen.png")) std::cout<<"Cant load black queen.png";
     if(!blackKing.loadFromFile("Assets/Pieces/BlackWood/King.png")) std::cout<<"Cant load black king.png";
+
+    if (!gameFont.openFromFile("Assets/Fonts/PressStart2P-Regular.ttf")) std::cout << "cant load font\n";
 }
 
 
-void Renderer::drawStartScreen(sf::RenderWindow& window){
+void Renderer::drawStartScreen(sf::RenderWindow& window,const StartScreenLayout& layout){
 
     //bg
-    sf::RectangleShape bg({640,640});
-    bg.setFillColor(sf::Color::Red);
-    bg.setPosition({0,0});
+    sf::RectangleShape bg({layout.screenWidth,layout.screenHeight});
+    bg.setFillColor(sf::Color::Black);
+    bg.setPosition(layout.screenCenter);
+    bg.setOrigin(bg.getLocalBounds().getCenter());
     window.draw(bg);
+ 
+    //logo
+    sf::Texture& texture = whiteQueen;
+    sf::Sprite logo(texture);
+    logo.setPosition(layout.logo);
+    float scale=layout.logoSize/texture.getSize().x;
+    logo.setScale({scale,scale});
+    logo.setOrigin(logo.getLocalBounds().getCenter());
+    window.draw(logo);
+ 
+    //title
+    drawCenteredText(window,"Chess",layout.title,layout.titleSize);
+
+    //startbutton
+    drawButton(window,layout.startButton,layout.startButtonSize,layout.buttonOutline,"Start",layout.buttonTextSize);
+    //endbutton
+    drawButton(window,layout.quitButton,layout.quitButtonSize,layout.buttonOutline,"Quit",layout.buttonTextSize);
 
 }
 
@@ -102,6 +122,30 @@ void Renderer::drawTiles(sf::RenderWindow& window, float boardX, float boardY, f
         }
     }
  }
+
+ void Renderer::drawCenteredText(sf::RenderWindow& window, const std::string& content, sf::Vector2f position, float size){
+
+    sf::Text text(gameFont);
+    text.setString(content);
+    text.setCharacterSize(static_cast<unsigned>(size));
+    text.setPosition(position);
+    text.setOrigin(text.getLocalBounds().position+text.getLocalBounds().size/2.f);
+    window.draw(text);
+}
+
+void Renderer::drawButton(sf::RenderWindow& window, sf::Vector2f position, sf::Vector2f size, float outline, const std::string& label, float textSize){
+
+    sf::RectangleShape button;
+    button.setSize(size);
+    button.setFillColor(sf::Color::Magenta);
+    button.setOutlineColor(sf::Color::Black);
+    button.setOutlineThickness(outline);
+    button.setPosition(position);
+    button.setOrigin(button.getLocalBounds().getCenter());
+    window.draw(button);
+
+    drawCenteredText(window,label,position,textSize);
+}
 
 sf::Texture& Renderer::getTexture(const Piece& piece){
     if(piece.color == Color::White)

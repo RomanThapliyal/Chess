@@ -4,6 +4,7 @@
 #include "UIState.hpp"
 #include "ChessGame.hpp"
 #include "ChessController.hpp"
+#include "StartScreenLayout.hpp"
 
 #include "Renderer.hpp"
 #include "LiveResize.hpp"
@@ -57,13 +58,13 @@ void handleEndInput(const Input& input, const std::optional<sf::Event>& event,UI
 
 int main(){
     Input input;
-    std::string fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    std::string fen="b2r3r/k4p1p/p2q1np1/NppP4/3R1Q2/P4PPB/1PP4P/1K2R3 b - - 0 24";
     ChessGame game(fen);
     ChessController controller(game);
     UIState uiState=UIState::Start;
     Renderer renderer;
 
-    sf::RenderWindow window(sf::VideoMode({640,640}),"Chess");
+    sf::RenderWindow window(sf::VideoMode({1280,720}),"Chess");
     window.setFramerateLimit(60);
 
     auto redraw=[&](){      //draws one full frame, LiveResize also calls it while the window is being dragged
@@ -71,17 +72,18 @@ int main(){
         auto size=LiveResize::applyView(window);      //window stuff, see LiveResize.hpp
         if(!size) return;
 
-        BoardLayout drawLayout=BoardLayout::calculate(*size);
+        StartScreenLayout startScreenlayout=StartScreenLayout::calculate(*size);
+        BoardLayout boardLayout=BoardLayout::calculate(*size);
 
         window.clear();
 
         switch(uiState){                              //rendering 
-            case UIState::Start: renderer.drawStartScreen(window);
+            case UIState::Start: renderer.drawStartScreen(window,startScreenlayout);
                                  break;
-            case UIState::Chess: renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),drawLayout);
+            case UIState::Chess: renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),boardLayout);
                                  break;
 
-            case UIState::PromotionChoice:  renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),drawLayout);
+            case UIState::PromotionChoice:  renderer.drawBoard(window,game.getBoard(),controller.getSelectedSquare(),controller.getLegalMoves(),boardLayout);
                                           break;                     
             
             case UIState::End: renderer.drawEndScreen(window);
@@ -97,7 +99,7 @@ int main(){
 
     while(window.isOpen()){
 
-        BoardLayout layout = BoardLayout::calculate(window);
+        BoardLayout boardLayout = BoardLayout::calculate(window);
 
         while(const std::optional event=window.pollEvent()){   //loop for input handeling
 
@@ -115,14 +117,14 @@ int main(){
               << resized->size.y << '\n';
             }
 
-            layout = BoardLayout::calculate(window);
+            boardLayout = BoardLayout::calculate(window);
 
 
             switch(uiState){
                 case UIState::Start: handleStartInput(input, event, uiState, game, controller);
                                      break;
 
-                case UIState::Chess: if(!controller.handleChessInput(input, *event, layout)){
+                case UIState::Chess: if(!controller.handleChessInput(input, *event, boardLayout)){
                                          uiState=UIState::End;
                                      }
                                      if(controller.isPromotionPending()){
