@@ -19,22 +19,61 @@ int ChessAi::evaluate(const Board& board){
     }
 
     int evaluation = whiteMaterial-blackMaterial;
-    std::cout<<"score="<<evaluation;
     return evaluation;
 }
 
-Move ChessAi::findBestMove(ChessGame& game, const Board& board, const std::vector<Move>& legalMoves){
-    int maxPoints=-10000;
-    Move bestMove;
+Move ChessAi::findBestMove(ChessGame& game, const std::vector<Move>& legalMoves, int depth){
+
+    Color aiColor = game.getTurn();
+    int maxPoints=INT_MIN;
+    int minPoints=INT_MAX;
+    Move bestMoveWhite;
+    Move bestMoveBlack;
     for(const Move& move:legalMoves){
-        Board testBoard = board;
         game.makeMove(move);
-        if(maxPoints<evaluate(testBoard)){
-            maxPoints=evaluate(testBoard);
-            bestMove=move;
+        int score = miniMax(game,depth-1);
+        if(maxPoints<score){
+            maxPoints=score;
+            bestMoveWhite=move;
+        }
+        if(minPoints>score){
+            minPoints=score;
+            bestMoveBlack=move;
+        }
+        game.undoMove();
+    }
+    if(aiColor==Color::White) return bestMoveWhite;
+    return bestMoveBlack;
+}
+
+int ChessAi::miniMax(ChessGame& game, int depth){
+    if(depth == 0) return evaluate(game.getBoard());
+
+    std::vector<Move> legalMoves=game.getAllLegalMoves();
+    if(legalMoves.empty()){
+        game.updateGameState();
+        if(game.getGameState()==GameState::Checkmate){
+            if(game.getTurn()==Color::White){
+                return -100000;
+            }
+            return 100000;
+        }
+        if(game.getGameState()==GameState::Stalemate){
+            return 0;
         }
     }
-    return bestMove;
+
+    Color currentTurn = game.getTurn();
+    int bestScore = (currentTurn==Color::White)?(INT_MIN):(INT_MAX);
+
+    for(auto& move:legalMoves){
+        game.makeMove(move);
+        int score = miniMax(game,depth-1);
+        game.undoMove();
+        bestScore = (currentTurn==Color::White)?(std::max(score,bestScore)):(std::min(score,bestScore));
+    }
+
+    return bestScore;
 }
 
 int ChessAi::getPointsOf(const Piece& piece){

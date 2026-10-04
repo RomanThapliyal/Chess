@@ -46,5 +46,6 @@ class ChessGame{
     std::string getGameStateName();
     
     std::vector<Move> getLegalMoves(const Square& square);
+    std::vector<Move> getAllLegalMoves();
 
 };

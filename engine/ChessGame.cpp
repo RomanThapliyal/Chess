@@ -11,6 +11,7 @@ void ChessGame::reset(){
     board.setPosition(startingPosition);
     turn=startingPosition.turn;
     gameStateUpToDate=false;
+    gameHistory.clear();
 }
 
 void ChessGame::makeMove(const Move& move){
@@ -178,3 +179,6 @@ std::vector<Move> ChessGame::getLegalMoves(const Square& square){
     return legalMoves;
 }
 
+std::vector<Move> ChessGame::getAllLegalMoves(){
+    return generator.getAllLegalMoves(board,turn);
+}
